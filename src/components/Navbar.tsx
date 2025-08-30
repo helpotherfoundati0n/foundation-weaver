@@ -1,39 +1,60 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import logo from './path/to/logo.png'; // Adjust the path to your logo file
 
-const Navbar = () => {
+interface NavbarProps {
+  activeSection?: string;
+}
+
+const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const navItems = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
-    { name: "What We Do", path: "/what-we-do" },
-    { name: "Events", path: "/events" },
-    { name: "Gallery", path: "/gallery" },
-    { name: "Contact", path: "/contact" },
-    { name: "Whatsapp", path: "/whatsapp", isLogo: true },
+    { name: "Home", path: "#home" },
+    { name: "About", path: "#about" },
+    { name: "What We Do", path: "#what-we-do" },
+    { name: "Events", path: "#events" },
+    { name: "Gallery", path: "#gallery" },
+    { name: "Contact", path: "#contact" },
+    { name: "Whatsapp", path: "#whatsapp", isLogo: true },
   ];
+
+  const handleNavClick = (path: string, sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      
+      // Trigger animation for section title
+      const titleElement = element.querySelector('.typewriter-title');
+      if (titleElement) {
+        titleElement.classList.remove('animate-fade-in');
+        setTimeout(() => titleElement.classList.add('animate-fade-in'), 10);
+      }
+    }
+    setIsOpen(false);
+  };
 
   return (
     <nav className="fixed w-full bg-black/90 backdrop-blur-md z-50 px-4 pb-2">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <NavLink to="/" className="flex items-center text-2xl font-bold text-accent">
+        <a href="#home" onClick={(e) => { e.preventDefault(); handleNavClick('#home', 'home'); }} className="flex items-center text-2xl font-bold text-accent">
           <img src={logo} alt="Logo" className="h-20 mr-4 mt-4"/> {/* Adjust the height, padding, and border radius as needed */}
           Help Other Foundation
-        </NavLink>
+        </a>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           {navItems.map((item) => (
-            <NavLink
+            <a
               key={item.name}
-              to={item.path}
-              className={({ isActive }) =>
-                `text-sm font-medium transition-colors hover:text-accent
-                ${isActive ? "text-accent" : "text-surface"}`
-              }
+              href={item.path}
+              onClick={(e) => {
+                e.preventDefault();
+                const sectionId = item.path.substring(1); // Remove # from path
+                handleNavClick(item.path, sectionId);
+              }}
+              className={`text-sm font-medium transition-colors hover:text-accent cursor-pointer
+                ${activeSection === item.path.substring(1) ? "text-accent" : "text-surface"}`}
             >
               {item.isLogo ? (
                 <span className="[&>svg]:h-7 [&>svg]:w-7 [&>svg]:fill-[#128c7e]">
@@ -44,13 +65,13 @@ const Navbar = () => {
               ) : (
                 item.name
               )}
-            </NavLink>
+            </a>
           ))}
-          <NavLink to="/donate">
+          <a href="/donate">
             <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
               Donate
             </button>
-          </NavLink>
+          </a>
         </div>
 
         {/* Mobile Navigation */}
@@ -66,14 +87,16 @@ const Navbar = () => {
           <div className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md py-4 md:hidden animate-fade-in">
             <div className="flex flex-col space-y-4 px-4">
               {navItems.map((item) => (
-                <NavLink
+                <a
                   key={item.name}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `text-sm font-medium transition-colors hover:text-accent
-                    ${isActive ? "text-accent" : "text-surface"}`
-                  }
-                  onClick={() => setIsOpen(false)}
+                  href={item.path}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const sectionId = item.path.substring(1); // Remove # from path
+                    handleNavClick(item.path, sectionId);
+                  }}
+                  className={`text-sm font-medium transition-colors hover:text-accent cursor-pointer
+                    ${activeSection === item.path.substring(1) ? "text-accent" : "text-surface"}`}
                 >
                   {item.isLogo ? (
                     <span className="[&>svg]:h-7 [&>svg]:w-7 [&>svg]:fill-[#128c7e]">
@@ -84,13 +107,13 @@ const Navbar = () => {
                   ) : (
                     item.name
                   )}
-                </NavLink>
+                </a>
               ))}
-              <NavLink to="/donate">
+              <a href="/donate">
                 <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
                   Donate
                 </button>
-              </NavLink>
+              </a>
             </div>
           </div>
         )}
