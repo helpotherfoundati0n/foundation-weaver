@@ -27,9 +27,6 @@ export default {
         "slide-up": "slideUp 0.5s ease-out",
         "scale-in": "scaleIn 0.3s ease-out",
       },
-      scrollBehavior: {
-        smooth: 'smooth',
-      },
       keyframes: {
         fadeIn: {
           "0%": { opacity: "0" },

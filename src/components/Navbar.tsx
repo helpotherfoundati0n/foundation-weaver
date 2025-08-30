@@ -1,77 +1,39 @@
 import React from "react";
-import { Menu, X, Heart } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import logo from './path/to/logo.png'; // Adjust the path to your logo file
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [activeSection, setActiveSection] = React.useState("home");
 
   const navItems = [
-    { name: "Home", path: "home" },
-    { name: "About", path: "about" },
-    { name: "Events", path: "events" },
-    { name: "Gallery", path: "gallery" },
-    { name: "Contact", path: "contact" },
-    { name: "Whatsapp", path: "/whatsapp", isExternal: true, isLogo: true },
+    { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+    { name: "What We Do", path: "/what-we-do" },
+    { name: "Events", path: "/events" },
+    { name: "Gallery", path: "/gallery" },
+    { name: "Contact", path: "/contact" },
+    { name: "Whatsapp", path: "/whatsapp", isLogo: true },
   ];
-
-  React.useEffect(() => {
-    const handleScroll = () => {
-      const sections = ["home", "about", "events", "gallery", "contact"];
-      const scrollPosition = window.scrollY + 100;
-
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-    setIsOpen(false);
-  };
-
-  const handleNavClick = (item: typeof navItems[0]) => {
-    if (item.isExternal) {
-      window.open(item.path, '_blank');
-    } else {
-      scrollToSection(item.path);
-    }
-  };
 
   return (
     <nav className="fixed w-full bg-black/90 backdrop-blur-md z-50 px-4 pb-2">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <button 
-          onClick={() => scrollToSection("home")} 
-          className="flex items-center text-2xl font-bold text-accent hover:text-accent/80 transition-colors"
-        >
+        <NavLink to="/" className="flex items-center text-2xl font-bold text-accent">
           <img src={logo} alt="Logo" className="h-20 mr-4 mt-4"/> {/* Adjust the height, padding, and border radius as needed */}
           Help Other Foundation
-        </button>
+        </NavLink>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           {navItems.map((item) => (
-            <button
+            <NavLink
               key={item.name}
-              onClick={() => handleNavClick(item)}
-              className={`text-sm font-medium transition-colors hover:text-accent ${
-                activeSection === item.path ? "text-accent" : "text-surface"
-              }`}
+              to={item.path}
+              className={({ isActive }) =>
+                `text-sm font-medium transition-colors hover:text-accent
+                ${isActive ? "text-accent" : "text-surface"}`
+              }
             >
               {item.isLogo ? (
                 <span className="[&>svg]:h-7 [&>svg]:w-7 [&>svg]:fill-[#128c7e]">
@@ -82,15 +44,13 @@ const Navbar = () => {
               ) : (
                 item.name
               )}
-            </button>
+            </NavLink>
           ))}
-          <button 
-            onClick={() => scrollToSection("contact")}
-            className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2"
-          >
-            <Heart size={16} />
-            Donate
-          </button>
+          <NavLink to="/donate">
+            <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
+              Donate
+            </button>
+          </NavLink>
         </div>
 
         {/* Mobile Navigation */}
@@ -106,12 +66,14 @@ const Navbar = () => {
           <div className="absolute top-full left-0 w-full bg-black/90 backdrop-blur-md py-4 md:hidden animate-fade-in">
             <div className="flex flex-col space-y-4 px-4">
               {navItems.map((item) => (
-                <button
+                <NavLink
                   key={item.name}
-                  onClick={() => handleNavClick(item)}
-                  className={`text-sm font-medium transition-colors hover:text-accent text-left ${
-                    activeSection === item.path ? "text-accent" : "text-surface"
-                  }`}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `text-sm font-medium transition-colors hover:text-accent
+                    ${isActive ? "text-accent" : "text-surface"}`
+                  }
+                  onClick={() => setIsOpen(false)}
                 >
                   {item.isLogo ? (
                     <span className="[&>svg]:h-7 [&>svg]:w-7 [&>svg]:fill-[#128c7e]">
@@ -122,15 +84,13 @@ const Navbar = () => {
                   ) : (
                     item.name
                   )}
-                </button>
+                </NavLink>
               ))}
-              <button 
-                onClick={() => scrollToSection("contact")}
-                className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2"
-              >
-                <Heart size={16} />
-                Donate
-              </button>
+              <NavLink to="/donate">
+                <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
+                  Donate
+                </button>
+              </NavLink>
             </div>
           </div>
         )}
