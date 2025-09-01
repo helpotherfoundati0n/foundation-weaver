@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { ArrowRight, Users, Heart, Award, HeartPulse, BookOpen, Wrench, Calendar, MapPin, Clock, Mail, Phone, Send, MessageCircle } from "lucide-react";
+import { ArrowRight, Users, Heart, Award, HeartPulse, BookOpen, Wrench, Calendar, MapPin, Clock, Mail, Phone, Send, MessageCircle, CreditCard, Wallet, QrCode, X } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { TypewriterEffectSmooth } from "../components/TypewriterEffect";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['home', 'about', 'what-we-do', 'events', 'gallery', 'contact', 'whatsapp'];
+      const sections = ['home', 'about-what-we-do', 'events', 'gallery', 'contact', 'whatsapp', 'donate'];
       const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
@@ -85,12 +87,18 @@ const Index = () => {
     e.preventDefault();
   };
 
+  const handleVolunteerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle volunteer form submission
+    setIsVolunteerModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-primary text-surface">
       <Navbar activeSection={activeSection} />
       
       {/* Home Section */}
-      <section id="home" className="pt-24 pb-16 px-4">
+      <section id="home" className="w-full h-screen flex items-center px-4 bg-home bg-cover bg-center">
         <div className="max-w-7xl mx-auto">
           <div className="text-center animate-fade-in">
             <div className="flex justify-center">
@@ -114,14 +122,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-16 px-4 bg-secondary">
+      {/* About Us & What We Do Section */}
+      <section id="about-what-we-do" className="py-8 px-4 bg-secondary">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center">
+            <div className="flex justify-center typewriter-title">
               <TypewriterEffectSmooth
                 words={[
-                  {text:"About"},{text:"Us", className:"text-accent"}
+                  {text:"About"},{text:"Us"},{text:"&"},{text:"What"},{text:"We"},{text:"Do", className:"text-accent"}
                 ]}
               />
             </div>
@@ -152,6 +160,88 @@ const Index = () => {
             </div>
           </div>
 
+          {/* What We Do - Key Activities */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold mb-12 text-center">
+              Our Key <span className="text-accent">Activities</span>
+            </h2>
+            
+            {/* Medical Help */}
+            <div className="mb-12 grid md:grid-cols-2 gap-12 items-center">
+              <div className="animate-fade-in">
+                <HeartPulse size={48} className="text-accent mb-6" />
+                <h3 className="text-2xl font-bold mb-6">Medical Help</h3>
+                <p className="text-surface/80 mb-4">
+                  We provide crucial support for emergency medical cases and assist with
+                  medical expenses for those who cannot afford treatment.
+                </p>
+                <ul className="list-disc list-inside text-surface/80 space-y-2">
+                  <li>Emergency medical assistance</li>
+                  <li>Support for ongoing treatment costs</li>
+                  <li>Guidance for MAA/Ayushman Card enrollment</li>
+                  <li>Medical camps and health awareness programs</li>
+                </ul>
+              </div>
+              <div className="bg-primary p-8 rounded-lg animate-fade-in delay-100">
+                <img 
+                  src="https://placehold.co/600x400" 
+                  alt="Medical Help"
+                  className="rounded-lg w-full"
+                />
+              </div>
+            </div>
+
+            {/* Education Help */}
+            <div className="mb-12 grid md:grid-cols-2 gap-12 items-center">
+              <div className="bg-primary p-8 rounded-lg animate-fade-in order-2 md:order-1">
+                <img 
+                  src="https://placehold.co/600x400" 
+                  alt="Education Help"
+                  className="rounded-lg w-full"
+                />
+              </div>
+              <div className="animate-fade-in order-1 md:order-2">
+                <BookOpen size={48} className="text-accent mb-6" />
+                <h3 className="text-2xl font-bold mb-6">Education Help</h3>
+                <p className="text-surface/80 mb-4">
+                  We believe education is key to breaking the cycle of poverty and
+                  creating sustainable change in communities.
+                </p>
+                <ul className="list-disc list-inside text-surface/80 space-y-2">
+                  <li>School fee assistance</li>
+                  <li>Educational materials and supplies</li>
+                  <li>Tutoring and mentoring programs</li>
+                  <li>Scholarship opportunities</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Aatma Nirbhar Help */}
+            <div className="mb-12 grid md:grid-cols-2 gap-12 items-center">
+              <div className="animate-fade-in">
+                <Wrench size={48} className="text-accent mb-6" />
+                <h3 className="text-2xl font-bold mb-6">Aatma Nirbhar Help</h3>
+                <p className="text-surface/80 mb-4">
+                  We empower individuals to become self-reliant through various
+                  initiatives and support programs.
+                </p>
+                <ul className="list-disc list-inside text-surface/80 space-y-2">
+                  <li>Vocational training programs</li>
+                  <li>Small business setup support</li>
+                  <li>Tools and equipment provision</li>
+                  <li>Skills development workshops</li>
+                </ul>
+              </div>
+              <div className="bg-primary p-8 rounded-lg animate-fade-in delay-100">
+                <img 
+                  src="https://placehold.co/600x400" 
+                  alt="Aatma Nirbhar Help"
+                  className="rounded-lg w-full"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Team Section */}
           <div className="mb-16">
             <h2 className="text-3xl font-bold mb-12 text-center">
@@ -177,7 +267,7 @@ const Index = () => {
           </div>
 
           {/* Values Section */}
-          <div>
+          <div className="mb-16">
             <h2 className="text-3xl font-bold mb-12 text-center">
               Our <span className="text-accent">Values</span>
             </h2>
@@ -205,103 +295,9 @@ const Index = () => {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* What We Do Section */}
-      <section id="what-we-do" className="py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="flex justify-center">
-              <TypewriterEffectSmooth
-                words={[
-                  {text:"What"},{text:"We"},{text:"Do", className:"text-accent"}
-                ]}
-              />
-            </div>
-            <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
-              We focus on three main areas of assistance to help create lasting positive
-              change in our community.
-            </p>
-          </div>
-
-          {/* Medical Help */}
-          <div className="mb-16 grid md:grid-cols-2 gap-12 items-center">
-            <div className="animate-fade-in">
-              <HeartPulse size={48} className="text-accent mb-6" />
-              <h2 className="text-3xl font-bold mb-6">Medical Help</h2>
-              <p className="text-surface/80 mb-4">
-                We provide crucial support for emergency medical cases and assist with
-                medical expenses for those who cannot afford treatment.
-              </p>
-              <ul className="list-disc list-inside text-surface/80 space-y-2">
-                <li>Emergency medical assistance</li>
-                <li>Support for ongoing treatment costs</li>
-                <li>Guidance for MAA/Ayushman Card enrollment</li>
-                <li>Medical camps and health awareness programs</li>
-              </ul>
-            </div>
-            <div className="bg-secondary p-8 rounded-lg animate-fade-in delay-100">
-              <img 
-                src="https://placehold.co/600x400" 
-                alt="Medical Help"
-                className="rounded-lg w-full"
-              />
-            </div>
-          </div>
-
-          {/* Education Help */}
-          <div className="mb-16 grid md:grid-cols-2 gap-12 items-center">
-            <div className="bg-secondary p-8 rounded-lg animate-fade-in order-2 md:order-1">
-              <img 
-                src="https://placehold.co/600x400" 
-                alt="Education Help"
-                className="rounded-lg w-full"
-              />
-            </div>
-            <div className="animate-fade-in order-1 md:order-2">
-              <BookOpen size={48} className="text-accent mb-6" />
-              <h2 className="text-3xl font-bold mb-6">Education Help</h2>
-              <p className="text-surface/80 mb-4">
-                We believe education is key to breaking the cycle of poverty and
-                creating sustainable change in communities.
-              </p>
-              <ul className="list-disc list-inside text-surface/80 space-y-2">
-                <li>School fee assistance</li>
-                <li>Educational materials and supplies</li>
-                <li>Tutoring and mentoring programs</li>
-                <li>Scholarship opportunities</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Aatma Nirbhar Help */}
-          <div className="mb-16 grid md:grid-cols-2 gap-12 items-center">
-            <div className="animate-fade-in">
-              <Wrench size={48} className="text-accent mb-6" />
-              <h2 className="text-3xl font-bold mb-6">Aatma Nirbhar Help</h2>
-              <p className="text-surface/80 mb-4">
-                We empower individuals to become self-reliant through various
-                initiatives and support programs.
-              </p>
-              <ul className="list-disc list-inside text-surface/80 space-y-2">
-                <li>Vocational training programs</li>
-                <li>Small business setup support</li>
-                <li>Tools and equipment provision</li>
-                <li>Skills development workshops</li>
-              </ul>
-            </div>
-            <div className="bg-secondary p-8 rounded-lg animate-fade-in delay-100">
-              <img 
-                src="https://placehold.co/600x400" 
-                alt="Aatma Nirbhar Help"
-                className="rounded-lg w-full"
-              />
-            </div>
-          </div>
 
           {/* Call to Action */}
-          <div className="text-center bg-secondary p-8 rounded-lg">
+          <div className="text-center bg-primary p-8 rounded-lg">
             <h2 className="text-3xl font-bold mb-6">
               Ready to Make a <span className="text-accent">Difference?</span>
             </h2>
@@ -311,26 +307,39 @@ const Index = () => {
               matters.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <a href="/donate">
-                <button className="bg-accent text-primary px-8 py-3 rounded-full font-medium hover:bg-accent/90 transition-colors">
+              <a href="#donate" onClick={(e) => {
+                e.preventDefault();
+                const element = document.getElementById('donate');
+                if (element) {
+                  const navbarHeight = 90;
+                  const targetPosition = element.offsetTop - navbarHeight;
+                  window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                  });
+                }
+              }}>
+                <button className="bg-accent text-primary px-8 py-3 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2">
+                  <Heart size={16} />
                   Donate Now
                 </button>
               </a>
-              <a href="/volunteer">
-                <button className="border border-accent text-accent px-8 py-3 rounded-full font-medium hover:bg-accent/10 transition-colors">
-                  Become a Volunteer
-                </button>
-              </a>
+              <button 
+                onClick={() => setIsVolunteerModalOpen(true)}
+                className="border border-accent text-accent px-8 py-3 rounded-full font-medium hover:bg-accent/10 transition-colors"
+              >
+                Become a Volunteer
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Events Section */}
-      <section id="events" className="py-16 px-4 bg-secondary">
+      <section id="events" className="py-8 px-4 bg-secondary">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center">
+            <div className="flex justify-center typewriter-title">
               <TypewriterEffectSmooth
                 words={[
                   {text:"Our"},{text:"Events", className:"text-accent"}
@@ -424,10 +433,10 @@ const Index = () => {
       </section>
 
       {/* Gallery Section */}
-      <section id="gallery" className="py-16 px-4">
+      <section id="gallery" className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center">
+            <div className="flex justify-center typewriter-title">
               <TypewriterEffectSmooth
                 words={[
                   {text:"Our"},{text:"Gallery", className:"text-accent"}
@@ -463,10 +472,10 @@ const Index = () => {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-16 px-4 bg-secondary">
+      <section id="contact" className="py-8 px-4 bg-secondary">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center">
+            <div className="flex justify-center typewriter-title">
               <TypewriterEffectSmooth
                 words={[
                   {text:"Contact"},{text:"Us", className:"text-accent"}
@@ -512,7 +521,8 @@ const Index = () => {
                   <textarea
                     id="message"
                     rows={5}
-                    className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
+                    className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/
+                    10 focus:border-accent focus:outline-none"
                     required
                   ></textarea>
                 </div>
@@ -561,10 +571,10 @@ const Index = () => {
       </section>
 
       {/* WhatsApp Section */}
-      <section id="whatsapp" className="py-16 px-4">
+      <section id="whatsapp" className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center">
+            <div className="flex justify-center typewriter-title">
               <TypewriterEffectSmooth
                 words={[
                   {text:"Join"},{text:"Our"},{text:"WhatsApp", className:"text-accent"},{text:"Community"}
@@ -608,7 +618,178 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Donate Section */}
+      <section id="donate" className="py-8 px-4 bg-secondary">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="flex justify-center typewriter-title">
+              <TypewriterEffectSmooth
+                words={[
+                  {text:"Make"},{text:"a"},{text:"Difference", className:"text-accent"}
+                ]}
+              />
+            </div>
+            <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
+              Your contribution can help us continue our mission of supporting those
+              in need through various initiatives.
+            </p>
+          </div>
+
+          <h2 className="text-3xl font-bold mb-12 text-center">
+            Ways to <span className="text-accent">Donate</span>
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Direct Transfer */}
+            <div className="bg-primary p-6 rounded-lg animate-scale-in">
+              <CreditCard className="text-accent mb-6" size={32} />
+              <h3 className="text-xl font-semibold mb-4">Direct Transfer</h3>
+              <div className="space-y-4 text-surface/80">
+                <p className="font-medium">Bank Details:</p>
+                <p>Account Name: Help Other Foundation</p>
+                <p>Account Number: XXXXXXXXXXXXX</p>
+                <p>IFSC Code: XXXXXXXXX</p>
+                <p>Branch: Mumbai Main</p>
+              </div>
+            </div>
+
+            {/* UPI Payment */}
+            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-100">
+              <Wallet className="text-accent mb-6" size={32} />
+              <h3 className="text-xl font-semibold mb-4">UPI Payment</h3>
+              <div className="space-y-4 text-surface/80">
+                <p>Scan QR code or use UPI ID:</p>
+                <div className="bg-white p-4 rounded-lg inline-block">
+                  <QrCode size={150} className="text-primary" />
+                </div>
+                <p>UPI ID: donate@helpother</p>
+              </div>
+            </div>
+
+            {/* Regular Giving */}
+            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-200">
+              <ArrowRight className="text-accent mb-6" size={32} />
+              <h3 className="text-xl font-semibold mb-4">Regular Giving</h3>
+              <p className="text-surface/80 mb-6">
+                Set up a recurring donation to help us plan and sustain our
+                long-term projects.
+              </p>
+              <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
+                Set Up Monthly Donation
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Volunteer Modal */}
+      <AnimatePresence>
+        {isVolunteerModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsVolunteerModalOpen(false)}
+          >
+            <motion.div
+              className="bg-primary rounded-2xl max-w-2xl w-full shadow-xl overflow-hidden"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center px-6 py-4 border-b border-surface/10">
+                <h2 className="text-xl font-bold">
+                  Become a <span className="text-accent">Volunteer</span>
+                </h2>
+                <button
+                  onClick={() => setIsVolunteerModalOpen(false)}
+                  className="text-surface hover:text-accent transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-6">
+                <p className="text-surface/70 text-center max-w-md mx-auto">
+                  Join our team of dedicated volunteers and help us make a difference
+                  in the lives of those in need.
+                </p>
+
+                <form
+                  onSubmit={handleVolunteerSubmit}
+                  className="space-y-6 animate-fade-in"
+                >
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Email</label>
+                      <input
+                        type="email"
+                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">City</label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      Why do you want to volunteer?
+                    </label>
+                    <textarea
+                      rows={4}
+                      className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                      required
+                    ></textarea>
+                  </div>
+
+                  <motion.button
+                    type="submit"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="w-full bg-accent text-primary px-8 py-3 rounded-full font-medium flex items-center justify-center gap-2"
+                  >
+                    Submit Application <Send size={16} />
+                  </motion.button>
+                </form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
+
   );
 };
 

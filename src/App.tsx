@@ -11,9 +11,7 @@ import Events from "./pages/Events";
 import Gallery from "./pages/Gallery";
 import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
-import Donate from "./pages/Donate";
 import WhatsApp from "./pages/WhatsApp";
-import Volunteer from "./pages/Volunteer";
 import Auction from "./pages/Auction";
 import NotFound from "./pages/NotFound";
 
@@ -33,9 +31,7 @@ const App = () => (
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/donate" element={<Donate />} />
           <Route path="/whatsapp" element={<WhatsApp />} />
-          <Route path="/volunteer" element={<Volunteer />} />
           <Route path="/auction" element={<Auction />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

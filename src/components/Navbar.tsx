@@ -1,5 +1,5 @@
 import React from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Heart } from "lucide-react";
 import logo from './path/to/logo.png'; // Adjust the path to your logo file
 
 interface NavbarProps {
@@ -8,11 +8,21 @@ interface NavbarProps {
 
 const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY > 50;
+      setIsScrolled(scrolled);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navItems = [
     { name: "Home", path: "#home" },
-    { name: "About", path: "#about" },
-    { name: "What We Do", path: "#what-we-do" },
+    { name: "About", path: "#about-what-we-do" },
     { name: "Events", path: "#events" },
     { name: "Gallery", path: "#gallery" },
     { name: "Contact", path: "#contact" },
@@ -22,7 +32,13 @@ const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
   const handleNavClick = (path: string, sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const navbarHeight = 90; // Account for navbar height
+      const targetPosition = element.offsetTop - navbarHeight;
+      
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth'
+      });
       
       // Trigger animation for section title
       const titleElement = element.querySelector('.typewriter-title');
@@ -35,10 +51,14 @@ const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
   };
 
   return (
-    <nav className="fixed w-full bg-black/90 backdrop-blur-md z-50 px-4 pb-2">
+    <nav className={`fixed w-full bg-black/90 backdrop-blur-md z-50 px-4 transition-all duration-300 ${
+      isScrolled ? 'py-2' : 'pb-2'
+    }`}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <a href="#home" onClick={(e) => { e.preventDefault(); handleNavClick('#home', 'home'); }} className="flex items-center text-2xl font-bold text-accent">
-          <img src={logo} alt="Logo" className="h-20 mr-4 mt-4"/> {/* Adjust the height, padding, and border radius as needed */}
+          <img src={logo} alt="Logo" className={`mr-4 mt-4 transition-all duration-300 ${
+            isScrolled ? 'h-16' : 'h-20'
+          }`} />
           Help Other Foundation
         </a>
 
@@ -53,8 +73,9 @@ const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
                 const sectionId = item.path.substring(1); // Remove # from path
                 handleNavClick(item.path, sectionId);
               }}
-              className={`text-sm font-medium transition-colors hover:text-accent cursor-pointer
-                ${activeSection === item.path.substring(1) ? "text-accent" : "text-surface"}`}
+              className={`text-sm font-medium transition-colors hover:text-accent cursor-pointer relative
+                ${!item.isLogo && activeSection === item.path.substring(1) ? "text-accent after:scale-x-100" : !item.isLogo ? "text-surface after:scale-x-0" : "text-surface"}
+                ${!item.isLogo ? "after:content-[''] after:absolute after:w-full after:h-0.5 after:bottom-0 after:left-0 after:bg-accent after:origin-bottom-left after:transition-transform after:duration-300" : ""}`}
             >
               {item.isLogo ? (
                 <span className="[&>svg]:h-7 [&>svg]:w-7 [&>svg]:fill-[#128c7e]">
@@ -67,8 +88,9 @@ const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
               )}
             </a>
           ))}
-          <a href="/donate">
-            <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
+          <a href="#donate" onClick={(e) => { e.preventDefault(); handleNavClick('#donate', 'donate'); }}>
+            <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2">
+              <Heart size={16} />
               Donate
             </button>
           </a>
@@ -95,8 +117,9 @@ const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
                     const sectionId = item.path.substring(1); // Remove # from path
                     handleNavClick(item.path, sectionId);
                   }}
-                  className={`text-sm font-medium transition-colors hover:text-accent cursor-pointer
-                    ${activeSection === item.path.substring(1) ? "text-accent" : "text-surface"}`}
+                  className={`text-sm font-medium transition-colors hover:text-accent cursor-pointer relative
+                    ${!item.isLogo && activeSection === item.path.substring(1) ? "text-accent after:scale-x-100" : !item.isLogo ? "text-surface after:scale-x-0" : "text-surface"}
+                    ${!item.isLogo ? "after:content-[''] after:absolute after:w-full after:h-0.5 after:bottom-0 after:left-0 after:bg-accent after:origin-bottom-left after:transition-transform after:duration-300" : ""}`}
                 >
                   {item.isLogo ? (
                     <span className="[&>svg]:h-7 [&>svg]:w-7 [&>svg]:fill-[#128c7e]">
@@ -109,8 +132,9 @@ const Navbar = ({ activeSection = 'home' }: NavbarProps) => {
                   )}
                 </a>
               ))}
-              <a href="/donate">
-                <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
+              <a href="#donate" onClick={(e) => { e.preventDefault(); handleNavClick('#donate', 'donate'); }}>
+                <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2">
+                  <Heart size={16} />
                   Donate
                 </button>
               </a>
