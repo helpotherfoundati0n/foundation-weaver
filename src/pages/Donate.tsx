@@ -61,7 +61,7 @@ const Donate = () => {
               </div>
             </div>
 
-            {/* Regular Giving */}
+            Regular Giving
             <div className="bg-primary p-6 rounded-lg animate-scale-in delay-200">
               <ArrowRight className="text-accent mb-6" size={32} />
               <h3 className="text-xl font-semibold mb-4">Regular Giving</h3>

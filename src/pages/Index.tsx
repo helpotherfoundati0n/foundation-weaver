@@ -36,7 +36,7 @@ const Index = () => {
     { name: "Team Member 3", role: "Volunteer Coordinator", image: "https://placehold.co/400x400" },
   ];
 
-  // Events data
+  //Events data
   const upcomingEvents = [
     {
       title: "Charity Cricket Match",
@@ -104,8 +104,9 @@ const Index = () => {
             <div className="flex justify-center">
               <TypewriterEffectSmooth
                 words={[
-                  { text: "Every" }, { text: "good" }, { text: "act" }, { text: "is" },
-                  { text: "charity!", className: "text-accent" },
+                  { text: "If" }, { text: "you" }, { text: "help" }, { text: "other" },
+                  { text: "allah"}, { text: "will" }, { text: "help" },{ text: "you" },{ text: "in" },
+                  { text: "return!", className: "text-accent" },
                 ]}
               />
             </div>
