@@ -95,23 +95,21 @@ const Index = () => {
       <section id="home" className="w-full h-screen flex items-center px-4 bg-home bg-cover bg-center">
         <div className="max-w-7xl mx-auto">
           <div className="text-center animate-fade-in">
-            <div className="flex justify-center">
-              <TypewriterEffectSmooth
+            <div className="flex flex-col items-center leading-tight">
+              <TypewriterEffectSmooth className="my-0"
                 words={[
-                  { text: "If" }, { text: "you" }, { text: "help" }, { text: "other" }
+                  { text: "If" }, { text: "you" }, { text: "help" }, { text: "other", className: "text-accent"},
                 ]}
               />
-            </div>
-
-            <div className="flex justify-center">
-              <TypewriterEffectSmooth
+              <TypewriterEffectSmooth className="my-0"
                 words={[
                   { text: "Allah", className: "text-accent" },
                   { text: "will" }, { text: "help" }, { text: "you" }, { text: "in" },
                   { text: "Return!", className: "text-accent" },
                 ]}
-              />
+             />
             </div>
+
 
             <p className="text-lg md:text-xl text-surface/80 max-w-2xl mx-auto mb-8">
               Join us in our mission to assist the underprivileged through education
