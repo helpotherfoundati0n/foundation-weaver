@@ -98,12 +98,21 @@ const Index = () => {
             <div className="flex justify-center">
               <TypewriterEffectSmooth
                 words={[
-                  { text: "If" }, { text: "you" }, { text: "help" }, { text: "other" },
-                  { text: "allah"}, { text: "will" }, { text: "help" },{ text: "you" },{ text: "in" },
-                  { text: "return!", className: "text-accent" },
+                  { text: "If" }, { text: "you" }, { text: "help" }, { text: "other" }
                 ]}
               />
             </div>
+
+            <div className="flex justify-center">
+              <TypewriterEffectSmooth
+                words={[
+                  { text: "Allah", className: "text-accent" },
+                  { text: "will" }, { text: "help" }, { text: "you" }, { text: "in" },
+                  { text: "Return!", className: "text-accent" },
+                ]}
+              />
+            </div>
+
             <p className="text-lg md:text-xl text-surface/80 max-w-2xl mx-auto mb-8">
               Join us in our mission to assist the underprivileged through education
               and healthcare initiatives.
