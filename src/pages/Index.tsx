@@ -98,7 +98,7 @@ const Index = () => {
             <div className="flex flex-col items-center leading-tight">
               <TypewriterEffectSmooth className="my-0"
                 words={[
-                  { text: "If" }, { text: "you" }, { text: "help" }, { text: "other", className: "text-accent"},
+                  { text: "If" }, { text: "you" }, { text: "help" }, { text: "other,", className: "text-accent"},
                 ]}
               />
               <TypewriterEffectSmooth className="my-0"
