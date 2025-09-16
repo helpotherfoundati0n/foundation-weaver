@@ -3,12 +3,10 @@ import { ArrowRight, Users, Heart, Award, HeartPulse, BookOpen, Wrench, Calendar
 import Navbar from "../components/Navbar";
 import { TypewriterEffectSmooth } from "../components/TypewriterEffect";
 import { AnimatePresence, motion } from "framer-motion";
-import { useContent } from "../hooks/useContent";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
-  const { getContent, getContactByKey, loading } = useContent();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -114,7 +112,8 @@ const Index = () => {
 
 
             <p className="text-lg md:text-xl text-surface/80 max-w-2xl mx-auto mb-8">
-              {getContent('hero_subtitle').content || 'Join us in our mission to assist the underprivileged through education and healthcare initiatives.'}
+              Join us in our mission to assist the underprivileged through education
+              and healthcare initiatives.
             </p>
             <a href="#contact">
               <button className="bg-accent text-primary px-8 py-3 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2">
@@ -137,7 +136,9 @@ const Index = () => {
               />
             </div>
             <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
-              {getContent('about_description').content || 'Founded in 2016, we started as a group of college friends raising funds for a friend\'s medical treatment. Today, we\'ve grown into a dedicated foundation committed to helping those in need.'}
+              Founded in 2016, we started as a group of college friends raising funds 
+              for a friend's medical treatment. Today, we've grown into a dedicated 
+              foundation committed to helping those in need.
             </p>
           </div>
 
