@@ -13,6 +13,7 @@ import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
 import WhatsApp from "./pages/WhatsApp";
 import Auction from "./pages/Auction";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/whatsapp" element={<WhatsApp />} />
           <Route path="/auction" element={<Auction />} />
+          <Route path="/admin-cms-secret-panel-2024" element={<AdminPanel />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
