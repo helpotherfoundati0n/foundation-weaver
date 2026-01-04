@@ -69,12 +69,11 @@ const Index = () => {
 
   // Gallery data
   const galleryItems = [
-    { title: "Medical Camp 2024", category: "Medical Help", image: "https://placehold.co/600x400" },
-    { title: "Education Fair", category: "Education", image: "https://placehold.co/600x400" },
-    { title: "Skill Development Workshop", category: "Aatma Nirbhar", image: "https://placehold.co/600x400" },
-    { title: "Community Outreach", category: "Community", image: "https://placehold.co/600x400" },
+    { title: "Blood Donation camp 2025", category: "Medical Help", image: "https://placehold.co/600x400" },
+    { title: "Career Guidance", category: "Education", image: "https://placehold.co/600x400" },
     { title: "Charity Cricket Match", category: "Events", image: "https://placehold.co/600x400" },
-    { title: "Distribution Drive", category: "Community", image: "https://placehold.co/600x400" },
+    // { title: "Distribution Drive", category: "Community", image: "https://placehold.co/600x400" },
+    // { title: "RTE event", category: "Aatma Nirbhar", image: "https://placehold.co/600x400" },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -136,9 +135,10 @@ const Index = () => {
               />
             </div>
             <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
-              Founded in 2016, we started as a group of college friends raising funds 
-              for a friend's medical treatment. Today, we've grown into a dedicated 
-              foundation committed to helping those in need.
+            Founded in 2025, our foundation grew out of a deep-rooted bond of friendship and a shared mission to serve. 
+            Our journey actually began much earlier, during the challenging days of the COVID-19 pandemic. Witnessing the struggles of those around us, 
+            our group of friends stepped up to provide individual support to anyone in need. After years of working informally, 
+            we realized that we could achieve so much more together. In 2025, we decided to channel our collective energy into a formal organization to ensure that no one has to face a crisis alone.           
             </p>
           </div>
 
@@ -186,7 +186,7 @@ const Index = () => {
               </div>
               <div className="bg-primary p-8 rounded-lg animate-fade-in delay-100">
                 <img 
-                  src="https://placehold.co/600x400" 
+                  src="/images/Medical-Help.png"
                   alt="Medical Help"
                   className="rounded-lg w-full"
                 />
@@ -197,7 +197,7 @@ const Index = () => {
             <div className="mb-12 grid md:grid-cols-2 gap-12 items-center">
               <div className="bg-primary p-8 rounded-lg animate-fade-in order-2 md:order-1">
                 <img 
-                  src="https://placehold.co/600x400" 
+                  src="/images/education-help.png" 
                   alt="Education Help"
                   className="rounded-lg w-full"
                 />
@@ -236,7 +236,7 @@ const Index = () => {
               </div>
               <div className="bg-primary p-8 rounded-lg animate-fade-in delay-100">
                 <img 
-                  src="https://placehold.co/600x400" 
+                  src="/images/atmanirbhar-help.png" 
                   alt="Aatma Nirbhar Help"
                   className="rounded-lg w-full"
                 />
@@ -333,7 +333,7 @@ const Index = () => {
 
           {/* Upcoming Events */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-12">Upcoming Events</h2>
+            <h2 className="text-3xl font-bold mb-12">Events</h2>
             <div className="grid md:grid-cols-2 gap-8">
               {upcomingEvents.map((event, index) => (
                 <div
@@ -374,7 +374,7 @@ const Index = () => {
 
           {/* Past Events */}
           <div>
-            <h2 className="text-3xl font-bold mb-12">Past Events</h2>
+            {/* <h2 className="text-3xl font-bold mb-12">Past Events</h2> */}
             <div className="grid md:grid-cols-2 gap-8">
               {pastEvents.map((event, index) => (
                 <div
@@ -400,9 +400,9 @@ const Index = () => {
                   </div>
                   <p className="text-surface/80 mb-6">{event.description}</p>
                   <a href="/blog">
-                    <button className="text-accent hover:text-accent/80 transition-colors inline-flex items-center gap-2">
+                    {/* <button className="text-accent hover:text-accent/80 transition-colors inline-flex items-center gap-2">
                       View Details <ArrowRight size={16} />
-                    </button>
+                    </button> */}
                   </a>
                 </div>
               ))}
@@ -570,9 +570,9 @@ const Index = () => {
           <h2 className="text-3xl font-bold mb-12 text-center">
             Ways to <span className="text-accent">Donate</span>
           </h2>
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
             {/* Direct Transfer */}
-            <div className="bg-primary p-6 rounded-lg animate-scale-in">
+            {/* <div className="bg-primary p-6 rounded-lg animate-scale-in">
               <CreditCard className="text-accent mb-6" size={32} />
               <h3 className="text-xl font-semibold mb-4">Direct Transfer</h3>
               <div className="space-y-4 text-surface/80">
@@ -582,42 +582,29 @@ const Index = () => {
                 <p>IFSC Code: XXXXXXXXX</p>
                 <p>Branch: Mumbai Main</p>
               </div>
-            </div>
-
-            {/* UPI Payment */}
-            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-100">
-              <Wallet className="text-accent mb-6" size={32} />
-              <h3 className="text-xl font-semibold mb-4">UPI Payment</h3>
-              <div className="space-y-4 text-surface/80">
-                <p>Scan QR code or use UPI ID:</p>
-                <div className="bg-white p-4 rounded-lg inline-block">
-                  <QrCode size={150} className="text-primary" />
-                </div>
-                <p>UPI ID: donate@helpother</p>
-              </div>
-            </div>
+            </div> */}
 
             {/* Sadka & Zakat */}
-            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-100">
-              <QrCode className="text-accent mb-6" size={32} />
+            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-100 flex flex-col items-center text-center">
+              <QrCode className="text-accent mb-6" size={60} />
               <h3 className="text-xl font-semibold mb-4">Sadka & Zakat</h3>
-              <div className="space-y-4 text-surface/80">
+              <div className="space-y-8 text-surface/80">
                 <p>Scan QR code for Sadka & Zakat donations:</p>
                 <div className="bg-white p-4 rounded-lg inline-block">
-                  <QrCode size={150} className="text-primary" />
+                  <QrCode size={400} className="text-primary" />
                 </div>
                 <p>UPI ID: sadkazakat@helpother</p>
               </div>
             </div>
 
             {/* Lillah */}
-            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-200">
-              <QrCode className="text-accent mb-6" size={32} />
+            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-200 flex flex-col items-center text-center">
+              <QrCode className="text-accent mb-6" size={60} />
               <h3 className="text-xl font-semibold mb-4">Lillah</h3>
-              <div className="space-y-4 text-surface/80">
+              <div className="space-y-8 text-surface/80">
                 <p>Scan QR code for Lillah donations:</p>
                 <div className="bg-white p-4 rounded-lg inline-block">
-                  <QrCode size={150} className="text-primary" />
+                  <QrCode size={400} className="text-primary" />
                 </div>
                 <p>UPI ID: lillah@helpother</p>
               </div>
