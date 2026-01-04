@@ -1,12 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { ArrowRight, Users, Heart, Award, HeartPulse, BookOpen, Wrench, Calendar, MapPin, Clock, Mail, Phone, Send, CreditCard, Wallet, QrCode, X } from "lucide-react";
+import { ArrowRight, Users, Heart, Award, HeartPulse, BookOpen, Wrench, Calendar, MapPin, Clock, Mail, Phone, Send, QrCode, X } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { TypewriterEffectSmooth } from "../components/TypewriterEffect";
 import { AnimatePresence, motion } from "framer-motion";
+import { useActiveEvents } from "@/hooks/useEvents";
+import { useGallery } from "@/hooks/useGallery";
+import { useContactInfo } from "@/hooks/useContactInfo";
+import { useSiteContent } from "@/hooks/useSiteContent";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
+
+  // Fetch dynamic data
+  const { data: events, isLoading: eventsLoading } = useActiveEvents();
+  const { data: gallery, isLoading: galleryLoading } = useGallery();
+  const { data: contactInfo, isLoading: contactLoading } = useContactInfo();
+  const { data: siteContent, isLoading: contentLoading } = useSiteContent();
+
+  // Helper to get content by key
+  const getContent = (key: string) => {
+    return siteContent?.find(c => c.section_key === key);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,62 +45,24 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-
-  //Events data
-  const upcomingEvents = [
-    {
-      title: "Charity Cricket Match",
-      date: "March 15, 2024", 
-      time: "9:00 AM - 5:00 PM",
-      location: "City Sports Complex",
-      description: "Join us for a day of cricket and charity to raise funds for medical assistance programs.",
-      image: "https://placehold.co/600x400",
-    },
-    {
-      title: "Education Fair",
-      date: "March 20, 2024",
-      time: "10:00 AM - 4:00 PM", 
-      location: "Community Center",
-      description: "Annual education fair providing resources and support for underprivileged students.",
-      image: "https://placehold.co/600x400",
-    },
-  ];
-
-  const pastEvents = [
-    {
-      title: "Medical Camp",
-      date: "February 28, 2024",
-      location: "Rural Health Center", 
-      description: "Free medical checkups and consultations for over 200 patients.",
-      image: "https://placehold.co/600x400",
-    },
-    {
-      title: "Skill Development Workshop", 
-      date: "February 15, 2024",
-      location: "Training Center",
-      description: "Vocational training program for youth empowerment.",
-      image: "https://placehold.co/600x400",
-    },
-  ];
-
-  // Gallery data
-  const galleryItems = [
-    { title: "Blood Donation camp 2025", category: "Medical Help", image: "https://placehold.co/600x400" },
-    { title: "Career Guidance", category: "Education", image: "https://placehold.co/600x400" },
-    { title: "Charity Cricket Match", category: "Events", image: "https://placehold.co/600x400" },
-    // { title: "Distribution Drive", category: "Community", image: "https://placehold.co/600x400" },
-    // { title: "RTE event", category: "Aatma Nirbhar", image: "https://placehold.co/600x400" },
-  ];
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
   };
 
   const handleVolunteerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle volunteer form submission
     setIsVolunteerModalOpen(false);
   };
+
+  const isLoading = eventsLoading || galleryLoading || contactLoading || contentLoading;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-accent" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-primary text-surface">
@@ -109,10 +87,8 @@ const Index = () => {
              />
             </div>
 
-
             <p className="text-lg md:text-xl text-surface/80 max-w-2xl mx-auto mb-8">
-              Join us in our mission to assist the underprivileged through education
-              and healthcare initiatives.
+              {getContent('hero_subtitle')?.content || 'Join us in our mission to assist the underprivileged through education and healthcare initiatives.'}
             </p>
             <a href="#contact">
               <button className="bg-accent text-primary px-8 py-3 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2">
@@ -135,10 +111,7 @@ const Index = () => {
               />
             </div>
             <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
-            Founded in 2025, our foundation grew out of a deep-rooted bond of friendship and a shared mission to serve. 
-            Our journey actually began much earlier, during the challenging days of the COVID-19 pandemic. Witnessing the struggles of those around us, 
-            our group of friends stepped up to provide individual support to anyone in need. After years of working informally, 
-            we realized that we could achieve so much more together. In 2025, we decided to channel our collective energy into a formal organization to ensure that no one has to face a crisis alone.           
+              {getContent('about_content')?.content || 'Founded in 2025, our foundation grew out of a deep-rooted bond of friendship and a shared mission to serve.'}
             </p>
           </div>
 
@@ -331,82 +304,47 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Upcoming Events */}
+          {/* Dynamic Events */}
           <div className="mb-16">
             <h2 className="text-3xl font-bold mb-12">Events</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              {upcomingEvents.map((event, index) => (
-                <div
-                  key={event.title}
-                  className="bg-primary p-6 rounded-lg animate-scale-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="w-full h-48 object-cover rounded-lg mb-6"
-                  />
-                  <h3 className="text-xl font-semibold mb-4">{event.title}</h3>
-                  <div className="space-y-2 text-surface/80 mb-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={16} />
-                      <span>{event.date}</span>
+            {events && events.length > 0 ? (
+              <div className="grid md:grid-cols-2 gap-8">
+                {events.map((event, index) => (
+                  <div
+                    key={event.id}
+                    className="bg-primary p-6 rounded-lg animate-scale-in"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {event.image_url && (
+                      <img
+                        src={event.image_url}
+                        alt={event.title}
+                        className="w-full h-48 object-cover rounded-lg mb-6"
+                      />
+                    )}
+                    <h3 className="text-xl font-semibold mb-4">{event.title}</h3>
+                    <div className="space-y-2 text-surface/80 mb-4">
+                      <div className="flex items-center gap-2">
+                        <Calendar size={16} />
+                        <span>{new Date(event.event_date).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Clock size={16} />
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} />
-                      <span>{event.location}</span>
-                    </div>
+                    {event.description && (
+                      <p className="text-surface/80 mb-6">{event.description}</p>
+                    )}
                   </div>
-                  <p className="text-surface/80 mb-6">{event.description}</p>
-                  <a href="/auction">
-                    <button className="bg-accent text-primary px-6 py-2 rounded-full font-medium hover:bg-accent/90 transition-colors">
-                      Register Now
-                    </button>
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Past Events */}
-          <div>
-            {/* <h2 className="text-3xl font-bold mb-12">Past Events</h2> */}
-            <div className="grid md:grid-cols-2 gap-8">
-              {pastEvents.map((event, index) => (
-                <div
-                  key={event.title}
-                  className="bg-primary p-6 rounded-lg animate-scale-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <img
-                    src={event.image}
-                    alt={event.title}
-                    className="w-full h-48 object-cover rounded-lg mb-6"
-                  />
-                  <h3 className="text-xl font-semibold mb-4">{event.title}</h3>
-                  <div className="space-y-2 text-surface/80 mb-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar size={16} />
-                      <span>{event.date}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin size={16} />
-                      <span>{event.location}</span>
-                    </div>
-                  </div>
-                  <p className="text-surface/80 mb-6">{event.description}</p>
-                  <a href="/blog">
-                    {/* <button className="text-accent hover:text-accent/80 transition-colors inline-flex items-center gap-2">
-                      View Details <ArrowRight size={16} />
-                    </button> */}
-                  </a>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-primary rounded-lg">
+                <Calendar className="h-12 w-12 text-surface/40 mx-auto mb-4" />
+                <p className="text-surface/60">No upcoming events at the moment. Check back soon!</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -428,25 +366,32 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {galleryItems.map((item, index) => (
-              <div
-                key={item.title}
-                className="group relative overflow-hidden rounded-lg animate-scale-in"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                  <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                  <p className="text-surface/80">{item.category}</p>
+          {gallery && gallery.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {gallery.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="group relative overflow-hidden rounded-lg animate-scale-in"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <img
+                    src={item.image_url}
+                    alt={item.caption || 'Gallery image'}
+                    className="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110"
+                  />
+                  {item.caption && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                      <p className="text-surface/80">{item.caption}</p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-secondary rounded-lg">
+              <p className="text-surface/60">Gallery images coming soon!</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -500,8 +445,7 @@ const Index = () => {
                   <textarea
                     id="message"
                     rows={5}
-                    className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/
-                    10 focus:border-accent focus:outline-none"
+                    className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
                     required
                   ></textarea>
                 </div>
@@ -514,7 +458,7 @@ const Index = () => {
               </form>
             </div>
 
-            {/* Contact Information */}
+            {/* Contact Information - Dynamic */}
             <div className="animate-fade-in delay-100">
               <h2 className="text-3xl font-bold mb-8">Get in touch</h2>
               <div className="space-y-6">
@@ -522,24 +466,22 @@ const Index = () => {
                   <Mail className="text-accent" size={24} />
                   <div>
                     <h3 className="font-semibold mb-2">Email</h3>
-                    <p className="text-surface/80">info@helpotherfoundation.com</p>
+                    <p className="text-surface/80">{contactInfo?.email || 'help@jaipas.lu'}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Phone className="text-accent" size={24} />
                   <div>
                     <h3 className="font-semibold mb-2">Phone</h3>
-                    <p className="text-surface/80">+91 1234567890</p>
+                    <p className="text-surface/80">{contactInfo?.phone || '+352 123 456 789'}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <MapPin className="text-accent" size={24} />
                   <div>
                     <h3 className="font-semibold mb-2">Address</h3>
-                    <p className="text-surface/80">
-                      123 NGO Street, Charity Lane<br />
-                      Mumbai, Maharashtra 400001<br />
-                      India
+                    <p className="text-surface/80 whitespace-pre-line">
+                      {contactInfo?.address || 'Luxembourg City, Luxembourg'}
                     </p>
                   </div>
                 </div>
@@ -571,19 +513,6 @@ const Index = () => {
             Ways to <span className="text-accent">Donate</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-            {/* Direct Transfer */}
-            {/* <div className="bg-primary p-6 rounded-lg animate-scale-in">
-              <CreditCard className="text-accent mb-6" size={32} />
-              <h3 className="text-xl font-semibold mb-4">Direct Transfer</h3>
-              <div className="space-y-4 text-surface/80">
-                <p className="font-medium">Bank Details:</p>
-                <p>Account Name: Help Other Foundation</p>
-                <p>Account Number: XXXXXXXXXXXXX</p>
-                <p>IFSC Code: XXXXXXXXX</p>
-                <p>Branch: Mumbai Main</p>
-              </div>
-            </div> */}
-
             {/* Sadka & Zakat */}
             <div className="bg-primary p-6 rounded-lg animate-scale-in delay-100 flex flex-col items-center text-center">
               <QrCode className="text-accent mb-6" size={60} />
@@ -591,7 +520,15 @@ const Index = () => {
               <div className="space-y-8 text-surface/80">
                 <p>Scan QR code for Sadka & Zakat donations:</p>
                 <div className="bg-white p-4 rounded-lg inline-block">
-                  <QrCode size={400} className="text-primary" />
+                  {contactInfo?.qr_code_url ? (
+                    <img 
+                      src={contactInfo.qr_code_url} 
+                      alt="QR Code" 
+                      className="w-48 h-48 md:w-64 md:h-64 object-contain"
+                    />
+                  ) : (
+                    <QrCode size={200} className="text-primary" />
+                  )}
                 </div>
                 <p>UPI ID: sadkazakat@helpother</p>
               </div>
@@ -604,7 +541,15 @@ const Index = () => {
               <div className="space-y-8 text-surface/80">
                 <p>Scan QR code for Lillah donations:</p>
                 <div className="bg-white p-4 rounded-lg inline-block">
-                  <QrCode size={400} className="text-primary" />
+                  {contactInfo?.qr_code_url ? (
+                    <img 
+                      src={contactInfo.qr_code_url} 
+                      alt="QR Code" 
+                      className="w-48 h-48 md:w-64 md:h-64 object-contain"
+                    />
+                  ) : (
+                    <QrCode size={200} className="text-primary" />
+                  )}
                 </div>
                 <p>UPI ID: lillah@helpother</p>
               </div>
