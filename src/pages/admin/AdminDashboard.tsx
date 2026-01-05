@@ -1,9 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useEvents } from '@/hooks/useEvents';
 import { useGallery } from '@/hooks/useGallery';
 import { useSiteContent } from '@/hooks/useSiteContent';
-import { Calendar, Image, FileText, TrendingUp } from 'lucide-react';
+import { Calendar, Image, FileText, TrendingUp, Eye } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { data: events } = useEvents();
@@ -43,9 +45,17 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-surface">Dashboard</h1>
-        <p className="text-surface/60 mt-2">Welcome to your admin dashboard</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-surface">Dashboard</h1>
+          <p className="text-surface/60 mt-2">Welcome to your admin dashboard</p>
+        </div>
+        <Link to="/admin/visual-cms">
+          <Button className="bg-accent text-primary hover:bg-accent/90">
+            <Eye className="h-4 w-4 mr-2" />
+            Visual CMS Editor
+          </Button>
+        </Link>
       </div>
 
       {/* Stats Grid */}

@@ -10,6 +10,7 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { Loader2, Plus, Pencil, Trash2, Calendar, X, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface EventForm {
   title: string;
@@ -28,7 +29,7 @@ const emptyForm: EventForm = {
 };
 
 const AdminEvents = () => {
-  const { data: events, isLoading } = useEvents();
+  const { data: events, isLoading, refetch } = useEvents();
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
   const deleteEvent = useDeleteEvent();
@@ -42,24 +43,43 @@ const AdminEvents = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    const url = await uploadImage(file, 'events');
-    if (url) {
-      setForm({ ...form, image_url: url });
+    try {
+      const url = await uploadImage(file, 'events');
+      if (url) {
+        setForm({ ...form, image_url: url });
+      }
+    } catch (error: any) {
+      toast.error('Failed to upload image: ' + error.message);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (editingId) {
-      await updateEvent.mutateAsync({ id: editingId, ...form });
-    } else {
-      await createEvent.mutateAsync(form);
+    if (!form.title.trim()) {
+      toast.error('Title is required');
+      return;
     }
     
-    setForm(emptyForm);
-    setEditingId(null);
-    setIsDialogOpen(false);
+    if (!form.event_date) {
+      toast.error('Event date is required');
+      return;
+    }
+    
+    try {
+      if (editingId) {
+        await updateEvent.mutateAsync({ id: editingId, ...form });
+      } else {
+        await createEvent.mutateAsync(form);
+      }
+      
+      setForm(emptyForm);
+      setEditingId(null);
+      setIsDialogOpen(false);
+      refetch();
+    } catch (error: any) {
+      console.error('Error saving event:', error);
+    }
   };
 
   const handleEdit = (event: any) => {
@@ -69,19 +89,30 @@ const AdminEvents = () => {
       description: event.description || '',
       event_date: event.event_date,
       image_url: event.image_url || '',
-      is_active: event.is_active,
+      is_active: event.is_active ?? true,
     });
     setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    await deleteEvent.mutateAsync(id);
+    try {
+      await deleteEvent.mutateAsync(id);
+      refetch();
+    } catch (error: any) {
+      console.error('Error deleting event:', error);
+    }
   };
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
     setEditingId(null);
     setForm(emptyForm);
+  };
+
+  const handleOpenDialog = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setIsDialogOpen(true);
   };
 
   if (isLoading) {
@@ -102,7 +133,10 @@ const AdminEvents = () => {
         
         <Dialog open={isDialogOpen} onOpenChange={(open) => !open && handleDialogClose()}>
           <DialogTrigger asChild>
-            <Button className="bg-accent text-primary hover:bg-accent/90">
+            <Button 
+              className="bg-accent text-primary hover:bg-accent/90"
+              onClick={handleOpenDialog}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Event
             </Button>

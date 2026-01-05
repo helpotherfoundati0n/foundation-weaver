@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          image_height: number | null
+          image_url: string | null
+          image_width: number | null
+          is_active: boolean | null
+          list_items: Json | null
+          order_index: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          image_height?: number | null
+          image_url?: string | null
+          image_width?: number | null
+          is_active?: boolean | null
+          list_items?: Json | null
+          order_index?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          image_height?: number | null
+          image_url?: string | null
+          image_width?: number | null
+          is_active?: boolean | null
+          list_items?: Json | null
+          order_index?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_info: {
         Row: {
           address: string | null
@@ -22,6 +67,7 @@ export type Database = {
           id: string
           phone: string | null
           qr_code_url: string | null
+          qr_code_url_2: string | null
           updated_at: string | null
         }
         Insert: {
@@ -31,6 +77,7 @@ export type Database = {
           id?: string
           phone?: string | null
           qr_code_url?: string | null
+          qr_code_url_2?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -40,9 +87,51 @@ export type Database = {
           id?: string
           phone?: string | null
           qr_code_url?: string | null
+          qr_code_url_2?: string | null
           updated_at?: string | null
         }
         Relationships: []
+      }
+      content_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          content_id: string
+          id: string
+          previous_content: string | null
+          previous_metadata: Json | null
+          previous_styles: Json | null
+          previous_title: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          content_id: string
+          id?: string
+          previous_content?: string | null
+          previous_metadata?: Json | null
+          previous_styles?: Json | null
+          previous_title?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          content_id?: string
+          id?: string
+          previous_content?: string | null
+          previous_metadata?: Json | null
+          previous_styles?: Json | null
+          previous_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_history_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "site_content"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       events: {
         Row: {
@@ -106,7 +195,11 @@ export type Database = {
           content: string | null
           created_at: string | null
           id: string
+          metadata: Json | null
+          order_index: number | null
           section_key: string
+          section_type: string | null
+          styles: Json | null
           title: string | null
           updated_at: string | null
         }
@@ -114,7 +207,11 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           id?: string
+          metadata?: Json | null
+          order_index?: number | null
           section_key: string
+          section_type?: string | null
+          styles?: Json | null
           title?: string | null
           updated_at?: string | null
         }
@@ -122,7 +219,11 @@ export type Database = {
           content?: string | null
           created_at?: string | null
           id?: string
+          metadata?: Json | null
+          order_index?: number | null
           section_key?: string
+          section_type?: string | null
+          styles?: Json | null
           title?: string | null
           updated_at?: string | null
         }

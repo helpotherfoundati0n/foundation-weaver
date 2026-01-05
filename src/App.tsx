@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
@@ -11,11 +10,11 @@ import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminContent from "./pages/admin/AdminContent";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminGallery from "./pages/admin/AdminGallery";
-import AdminContact from "./pages/admin/AdminContact";
 import AdminSettings from "./pages/admin/AdminSettings";
+import VisualCMS from "./pages/admin/VisualCMS";
+import UpdatePassword from "./pages/auth/UpdatePassword";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +28,16 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/auth/update-password" element={<UpdatePassword />} />
+            {/* Visual CMS - Full screen without admin layout */}
+            <Route
+              path="/admin/visual-cms"
+              element={
+                <ProtectedRoute requireAdmin>
+                  <VisualCMS />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/admin"
               element={
@@ -37,11 +46,10 @@ const App = () => (
                 </ProtectedRoute>
               }
             >
-              <Route index element={<AdminDashboard />} />
-              <Route path="content" element={<AdminContent />} />
+              <Route index element={<Navigate to="/admin/visual-cms" replace />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="events" element={<AdminEvents />} />
               <Route path="gallery" element={<AdminGallery />} />
-              <Route path="contact" element={<AdminContact />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />

@@ -89,3 +89,29 @@ export const useDeleteGalleryItem = () => {
     },
   });
 };
+
+export const useReorderGallery = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (items: { id: string; display_order: number }[]) => {
+      const updates = items.map(item => 
+        supabase
+          .from('gallery')
+          .update({ display_order: item.display_order })
+          .eq('id', item.id)
+      );
+      
+      const results = await Promise.all(updates);
+      const error = results.find(r => r.error)?.error;
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gallery'] });
+      toast.success('Gallery order updated');
+    },
+    onError: (error) => {
+      toast.error('Failed to reorder gallery: ' + error.message);
+    },
+  });
+};

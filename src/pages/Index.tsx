@@ -7,7 +7,17 @@ import { useActiveEvents } from "@/hooks/useEvents";
 import { useGallery } from "@/hooks/useGallery";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useActiveActivities } from "@/hooks/useActivities";
 import { Loader2 } from "lucide-react";
+
+const iconMap: Record<string, React.ElementType> = {
+  HeartPulse,
+  BookOpen,
+  Wrench,
+  Users,
+  Heart,
+  Award,
+};
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -18,6 +28,7 @@ const Index = () => {
   const { data: gallery, isLoading: galleryLoading } = useGallery();
   const { data: contactInfo, isLoading: contactLoading } = useContactInfo();
   const { data: siteContent, isLoading: contentLoading } = useSiteContent();
+  const { data: activities, isLoading: activitiesLoading } = useActiveActivities();
 
   // Helper to get content by key
   const getContent = (key: string) => {
@@ -54,7 +65,7 @@ const Index = () => {
     setIsVolunteerModalOpen(false);
   };
 
-  const isLoading = eventsLoading || galleryLoading || contactLoading || contentLoading;
+  const isLoading = eventsLoading || galleryLoading || contactLoading || contentLoading || activitiesLoading;
 
   if (isLoading) {
     return (
@@ -92,7 +103,7 @@ const Index = () => {
             </p>
             <a href="#contact">
               <button className="bg-accent text-primary px-8 py-3 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2">
-                Get Involved <ArrowRight size={20} />
+                {getContent('hero_button')?.content || 'Get Involved'} <ArrowRight size={20} />
               </button>
             </a>
           </div>
@@ -118,19 +129,19 @@ const Index = () => {
           {/* Mission & Vision */}
           <div className="grid md:grid-cols-2 gap-12 mb-16">
             <div className="animate-fade-in">
-              <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
+              <h2 className="text-3xl font-bold mb-6">
+                {getContent('mission_title')?.content || 'Our Mission'}
+              </h2>
               <p className="text-surface/80">
-                To centralize efforts in aiding the needy and expanding our reach to help
-                more individuals through medical assistance, education support, and
-                self-reliance initiatives.
+                {getContent('mission_content')?.content || 'To centralize efforts in aiding the needy and expanding our reach to help more individuals through medical assistance, education support, and self-reliance initiatives.'}
               </p>
             </div>
             <div className="animate-fade-in delay-100">
-              <h2 className="text-3xl font-bold mb-6">Our Vision</h2>
+              <h2 className="text-3xl font-bold mb-6">
+                {getContent('vision_title')?.content || 'Our Vision'}
+              </h2>
               <p className="text-surface/80">
-                To create a society where every individual has access to basic healthcare,
-                quality education, and opportunities for self-reliance, regardless of their
-                economic status.
+                {getContent('vision_content')?.content || 'To create a society where every individual has access to basic healthcare, quality education, and opportunities for self-reliance, regardless of their economic status.'}
               </p>
             </div>
           </div>
@@ -141,80 +152,50 @@ const Index = () => {
               Our Key <span className="text-accent">Activities</span>
             </h2>
             
-            {/* Medical Help */}
-            <div className="mb-12 grid md:grid-cols-2 gap-12 items-center">
-              <div className="animate-fade-in">
-                <HeartPulse size={48} className="text-accent mb-6" />
-                <h3 className="text-2xl font-bold mb-6">Medical Help</h3>
-                <p className="text-surface/80 mb-4">
-                  We provide crucial support for emergency medical cases and assist with
-                  medical expenses for those who cannot afford treatment.
-                </p>
-                <ul className="list-disc list-inside text-surface/80 space-y-2">
-                  <li>Emergency medical assistance</li>
-                  <li>Support for ongoing treatment costs</li>
-                  <li>Guidance for MAA/Ayushman Card enrollment</li>
-                  <li>Medical camps and health awareness programs</li>
-                </ul>
+            {activities && activities.length > 0 ? (
+              activities.map((activity, index) => {
+                const IconComponent = iconMap[activity.icon] || HeartPulse;
+                const isEven = index % 2 === 0;
+                
+                return (
+                  <div key={activity.id} className="mb-12 grid md:grid-cols-2 gap-12 items-center">
+                    <div className={`animate-fade-in ${!isEven ? 'order-1 md:order-2' : ''}`}>
+                      <IconComponent size={48} className="text-accent mb-6" />
+                      <h3 className="text-2xl font-bold mb-6">{activity.title}</h3>
+                      <p className="text-surface/80 mb-4">{activity.description}</p>
+                      {activity.list_items && activity.list_items.length > 0 && (
+                        <ul className="list-disc list-inside text-surface/80 space-y-2">
+                          {activity.list_items.map((item, i) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <div className={`bg-primary p-8 rounded-lg animate-fade-in delay-100 ${!isEven ? 'order-2 md:order-1' : ''}`}>
+                      {activity.image_url ? (
+                        <img 
+                          src={activity.image_url}
+                          alt={activity.title}
+                          className="rounded-lg w-full"
+                          style={{ 
+                            maxWidth: activity.image_width || 400, 
+                            maxHeight: activity.image_height || 300,
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-surface/10 rounded-lg flex items-center justify-center">
+                          <p className="text-surface/40">No image available</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-12 bg-primary rounded-lg">
+                <p className="text-surface/60">No activities configured yet.</p>
               </div>
-              <div className="bg-primary p-8 rounded-lg animate-fade-in delay-100">
-                <img 
-                  src="/images/Medical-Help.png"
-                  alt="Medical Help"
-                  className="rounded-lg w-full"
-                />
-              </div>
-            </div>
-
-            {/* Education Help */}
-            <div className="mb-12 grid md:grid-cols-2 gap-12 items-center">
-              <div className="bg-primary p-8 rounded-lg animate-fade-in order-2 md:order-1">
-                <img 
-                  src="/images/education-help.png" 
-                  alt="Education Help"
-                  className="rounded-lg w-full"
-                />
-              </div>
-              <div className="animate-fade-in order-1 md:order-2">
-                <BookOpen size={48} className="text-accent mb-6" />
-                <h3 className="text-2xl font-bold mb-6">Education Help</h3>
-                <p className="text-surface/80 mb-4">
-                  We believe education is key to breaking the cycle of poverty and
-                  creating sustainable change in communities.
-                </p>
-                <ul className="list-disc list-inside text-surface/80 space-y-2">
-                  <li>School fee assistance</li>
-                  <li>Educational materials and supplies</li>
-                  <li>Tutoring and mentoring programs</li>
-                  <li>Scholarship opportunities</li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Aatma Nirbhar Help */}
-            <div className="mb-12 grid md:grid-cols-2 gap-12 items-center">
-              <div className="animate-fade-in">
-                <Wrench size={48} className="text-accent mb-6" />
-                <h3 className="text-2xl font-bold mb-6">Aatma Nirbhar Help</h3>
-                <p className="text-surface/80 mb-4">
-                  We empower individuals to become self-reliant through various
-                  initiatives and support programs.
-                </p>
-                <ul className="list-disc list-inside text-surface/80 space-y-2">
-                  <li>Vocational training programs</li>
-                  <li>Small business setup support</li>
-                  <li>Tools and equipment provision</li>
-                  <li>Skills development workshops</li>
-                </ul>
-              </div>
-              <div className="bg-primary p-8 rounded-lg animate-fade-in delay-100">
-                <img 
-                  src="/images/atmanirbhar-help.png" 
-                  alt="Aatma Nirbhar Help"
-                  className="rounded-lg w-full"
-                />
-              </div>
-            </div>
+            )}
           </div>
 
 
@@ -226,23 +207,29 @@ const Index = () => {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center p-6 animate-fade-in">
                 <Users size={48} className="text-accent mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-4">Community First</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  {getContent('value_1_title')?.content || 'Community First'}
+                </h3>
                 <p className="text-surface/80">
-                  We prioritize the needs of our community in everything we do.
+                  {getContent('value_1_content')?.content || 'We prioritize the needs of our community in everything we do.'}
                 </p>
               </div>
               <div className="text-center p-6 animate-fade-in delay-100">
                 <Heart size={48} className="text-accent mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-4">Compassion</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  {getContent('value_2_title')?.content || 'Compassion'}
+                </h3>
                 <p className="text-surface/80">
-                  We approach every situation with empathy and understanding.
+                  {getContent('value_2_content')?.content || 'We approach every situation with empathy and understanding.'}
                 </p>
               </div>
               <div className="text-center p-6 animate-fade-in delay-200">
                 <Award size={48} className="text-accent mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-4">Excellence</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  {getContent('value_3_title')?.content || 'Excellence'}
+                </h3>
                 <p className="text-surface/80">
-                  We strive for excellence in our service to those in need.
+                  {getContent('value_3_content')?.content || 'We strive for excellence in our service to those in need.'}
                 </p>
               </div>
             </div>
@@ -541,9 +528,9 @@ const Index = () => {
               <div className="space-y-8 text-surface/80">
                 <p>Scan QR code for Lillah donations:</p>
                 <div className="bg-white p-4 rounded-lg inline-block">
-                  {contactInfo?.qr_code_url ? (
+                  {contactInfo?.qr_code_url_2 ? (
                     <img 
-                      src={contactInfo.qr_code_url} 
+                      src={contactInfo.qr_code_url_2} 
                       alt="QR Code" 
                       className="w-48 h-48 md:w-64 md:h-64 object-contain"
                     />

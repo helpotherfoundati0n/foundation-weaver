@@ -4,14 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { 
   LayoutDashboard, 
-  FileText, 
   Calendar, 
   Image, 
-  Phone, 
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  Eye
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -26,18 +25,16 @@ const AdminLayout = () => {
   };
 
   const navItems = [
-    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-    { to: '/admin/content', icon: FileText, label: 'Site Content' },
+    { to: '/admin/visual-cms', icon: Eye, label: 'Visual Editor' },
+    { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/admin/events', icon: Calendar, label: 'Events' },
     { to: '/admin/gallery', icon: Image, label: 'Gallery' },
-    { to: '/admin/contact', icon: Phone, label: 'Contact & QR' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
-  const NavItem = ({ to, icon: Icon, label, end }: { to: string; icon: any; label: string; end?: boolean }) => (
+  const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => (
     <NavLink
       to={to}
-      end={end}
       onClick={() => setIsMobileMenuOpen(false)}
       className={({ isActive }) =>
         `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${

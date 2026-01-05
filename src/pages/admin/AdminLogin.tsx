@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, ArrowLeft, Mail, Lock } from 'lucide-react';
@@ -26,7 +27,7 @@ const AdminLogin = () => {
       toast.error(error.message);
     } else {
       toast.success('Logged in successfully');
-      navigate('/admin');
+      navigate('/admin/visual-cms');
     }
     
     setIsLoading(false);
@@ -134,10 +135,9 @@ const AdminLogin = () => {
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-surface">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-surface/40" />
-                  <Input
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-surface/40 z-10" />
+                  <PasswordInput
                     id="password"
-                    type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"

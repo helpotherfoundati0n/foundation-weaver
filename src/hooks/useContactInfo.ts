@@ -8,6 +8,7 @@ export interface ContactInfo {
   email: string | null;
   address: string | null;
   qr_code_url: string | null;
+  qr_code_url_2: string | null;
   created_at: string;
   updated_at: string;
 }
