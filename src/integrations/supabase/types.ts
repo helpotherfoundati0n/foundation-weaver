@@ -138,9 +138,13 @@ export type Database = {
           created_at: string | null
           description: string | null
           event_date: string
+          event_time: string | null
+          google_form_url: string | null
           id: string
           image_url: string | null
           is_active: boolean | null
+          location: string | null
+          registration_deadline: string | null
           title: string
           updated_at: string | null
         }
@@ -148,9 +152,13 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           event_date: string
+          event_time?: string | null
+          google_form_url?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          location?: string | null
+          registration_deadline?: string | null
           title: string
           updated_at?: string | null
         }
@@ -158,9 +166,13 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           event_date?: string
+          event_time?: string | null
+          google_form_url?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          location?: string | null
+          registration_deadline?: string | null
           title?: string
           updated_at?: string | null
         }
