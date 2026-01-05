@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { ArrowRight, Users, Heart, Award, HeartPulse, BookOpen, Wrench, Calendar, MapPin, Clock, Mail, Phone, Send, QrCode, X } from "lucide-react";
+import { ArrowRight, Users, Heart, Award, HeartPulse, BookOpen, Wrench, Calendar, MapPin, Clock, Mail, Phone, Send, QrCode, X, ExternalLink } from "lucide-react";
 import Navbar from "../components/Navbar";
 import { TypewriterEffectSmooth } from "../components/TypewriterEffect";
 import { AnimatePresence, motion } from "framer-motion";
-import { useActiveEvents } from "@/hooks/useEvents";
+import { useUpcomingEvents, usePastEvents } from "@/hooks/useEvents";
 import { useGallery } from "@/hooks/useGallery";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useActiveActivities } from "@/hooks/useActivities";
 import { Loader2 } from "lucide-react";
+import { format } from "date-fns";
+import { useInView } from "react-intersection-observer";
+import GalleryLightbox from "@/components/GalleryLightbox";
+import EventDetailsModal from "@/components/EventDetailsModal";
+import { toast } from "sonner";
 
 const iconMap: Record<string, React.ElementType> = {
   HeartPulse,
@@ -19,12 +24,153 @@ const iconMap: Record<string, React.ElementType> = {
   Award,
 };
 
+// Animation variants for scroll reveal
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+// Animated Event Card component
+const EventCard = ({ event, index, isPast, onViewDetails }: { 
+  event: any; 
+  index: number; 
+  isPast?: boolean;
+  onViewDetails: (event: any) => void;
+}) => {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+  
+  const isRegistrationOpen = event.registration_deadline 
+    ? new Date(event.registration_deadline) >= new Date() 
+    : new Date(event.event_date) >= new Date();
+
+  const formatTime = (time: string) => {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours), parseInt(minutes));
+    return format(date, 'h:mm a');
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 30 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ delay: index * 0.1, duration: 0.6 }}
+      className="group bg-primary rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-accent/10 transition-all duration-500 transform hover:-translate-y-2"
+    >
+      {event.image_url && (
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={event.image_url}
+            alt={event.title}
+            className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {isPast && (
+            <div className="absolute top-3 right-3 bg-surface/90 text-primary px-3 py-1 rounded-full text-xs font-medium">
+              Completed
+            </div>
+          )}
+        </div>
+      )}
+      <div className="p-6 space-y-4">
+        <h3 className="text-xl font-bold text-surface group-hover:text-accent transition-colors">
+          {event.title}
+        </h3>
+        
+        <div className="space-y-2 text-surface/70">
+          <div className="flex items-center gap-2">
+            <Calendar size={16} className="text-accent" />
+            <span>{format(new Date(event.event_date), 'EEEE, MMMM d, yyyy')}</span>
+          </div>
+          
+          {event.event_time && (
+            <div className="flex items-center gap-2">
+              <Clock size={16} className="text-accent" />
+              <span>{formatTime(event.event_time)}</span>
+            </div>
+          )}
+          
+          {event.location && (
+            <div className="flex items-center gap-2">
+              <MapPin size={16} className="text-accent" />
+              <span className="truncate">{event.location}</span>
+            </div>
+          )}
+        </div>
+        
+        {event.description && (
+          <p className="text-surface/60 text-sm line-clamp-2">{event.description}</p>
+        )}
+        
+        {/* Action Buttons */}
+        <div className="pt-2">
+          {isPast ? (
+            <button
+              onClick={() => onViewDetails(event)}
+              className="w-full bg-surface/10 text-surface px-6 py-3 rounded-full font-medium hover:bg-surface/20 transition-colors inline-flex items-center justify-center gap-2"
+            >
+              View Details
+            </button>
+          ) : event.google_form_url && isRegistrationOpen ? (
+            <a
+              href={event.google_form_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-accent text-primary px-6 py-3 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center justify-center gap-2"
+            >
+              Register Now <ExternalLink size={16} />
+            </a>
+          ) : (
+            <button
+              onClick={() => onViewDetails(event)}
+              className="w-full bg-surface/10 text-surface px-6 py-3 rounded-full font-medium hover:bg-surface/20 transition-colors inline-flex items-center justify-center gap-2"
+            >
+              View Details
+            </button>
+          )}
+        </div>
+
+        {/* Registration deadline badge */}
+        {!isPast && event.registration_deadline && (
+          <div className="text-xs text-surface/50 text-center">
+            {isRegistrationOpen 
+              ? `Registration closes: ${format(new Date(event.registration_deadline), 'MMM d, yyyy')}`
+              : 'Registration closed'
+            }
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+
+  // Form states
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [volunteerForm, setVolunteerForm] = useState({ 
+    name: '', email: '', phone: '', city: '', message: '' 
+  });
 
   // Fetch dynamic data
-  const { data: events, isLoading: eventsLoading } = useActiveEvents();
+  const { data: upcomingEvents, isLoading: upcomingLoading } = useUpcomingEvents();
+  const { data: pastEvents, isLoading: pastLoading } = usePastEvents();
   const { data: gallery, isLoading: galleryLoading } = useGallery();
   const { data: contactInfo, isLoading: contactLoading } = useContactInfo();
   const { data: siteContent, isLoading: contentLoading } = useSiteContent();
@@ -33,6 +179,77 @@ const Index = () => {
   // Helper to get content by key
   const getContent = (key: string) => {
     return siteContent?.find(c => c.section_key === key);
+  };
+
+  // Get WhatsApp number from contact info (clean it for URL)
+  const getWhatsAppNumber = () => {
+    const phone = contactInfo?.phone || '+91 XXX XXX XXXX';
+    return phone.replace(/[\s\-\(\)]/g, '');
+  };
+
+  // WhatsApp redirect for contact form
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!contactForm.name.trim() || !contactForm.email.trim() || !contactForm.message.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    const message = `*New Contact Message*
+    
+*Name:* ${contactForm.name}
+*Email:* ${contactForm.email}
+
+*Message:*
+${contactForm.message}`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${getWhatsAppNumber()}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+    toast.success('Redirecting to WhatsApp...');
+    setContactForm({ name: '', email: '', message: '' });
+  };
+
+  // WhatsApp redirect for volunteer form
+  const handleVolunteerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!volunteerForm.name.trim() || !volunteerForm.email.trim() || !volunteerForm.phone.trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    const message = `*New Volunteer Application*
+    
+*Name:* ${volunteerForm.name}
+*Email:* ${volunteerForm.email}
+*Phone:* ${volunteerForm.phone}
+*City:* ${volunteerForm.city}
+
+*Why they want to volunteer:*
+${volunteerForm.message}`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${getWhatsAppNumber()}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, '_blank');
+    toast.success('Redirecting to WhatsApp...');
+    setVolunteerForm({ name: '', email: '', phone: '', city: '', message: '' });
+    setIsVolunteerModalOpen(false);
+  };
+
+  // Gallery click handler
+  const handleGalleryImageClick = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  // Event details handler
+  const handleViewEventDetails = (event: any) => {
+    setSelectedEvent(event);
+    setEventModalOpen(true);
   };
 
   useEffect(() => {
@@ -56,16 +273,7 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
-  const handleVolunteerSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsVolunteerModalOpen(false);
-  };
-
-  const isLoading = eventsLoading || galleryLoading || contactLoading || contentLoading || activitiesLoading;
+  const isLoading = upcomingLoading || pastLoading || galleryLoading || contactLoading || contentLoading || activitiesLoading;
 
   if (isLoading) {
     return (
@@ -291,48 +499,63 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Dynamic Events */}
+          {/* Upcoming Events */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold mb-12">Events</h2>
-            {events && events.length > 0 ? (
-              <div className="grid md:grid-cols-2 gap-8">
-                {events.map((event, index) => (
-                  <div
-                    key={event.id}
-                    className="bg-primary p-6 rounded-lg animate-scale-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    {event.image_url && (
-                      <img
-                        src={event.image_url}
-                        alt={event.title}
-                        className="w-full h-48 object-cover rounded-lg mb-6"
-                      />
-                    )}
-                    <h3 className="text-xl font-semibold mb-4">{event.title}</h3>
-                    <div className="space-y-2 text-surface/80 mb-4">
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} />
-                        <span>{new Date(event.event_date).toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}</span>
-                      </div>
-                    </div>
-                    {event.description && (
-                      <p className="text-surface/80 mb-6">{event.description}</p>
-                    )}
-                  </div>
+            <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+              <span className="bg-accent h-8 w-1 rounded-full"></span>
+              Upcoming Events
+            </h2>
+            {upcomingEvents && upcomingEvents.length > 0 ? (
+              <motion.div 
+                className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                {upcomingEvents.map((event, index) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    index={index}
+                    onViewDetails={handleViewEventDetails}
+                  />
                 ))}
-              </div>
+              </motion.div>
             ) : (
-              <div className="text-center py-12 bg-primary rounded-lg">
+              <div className="text-center py-12 bg-primary rounded-2xl">
                 <Calendar className="h-12 w-12 text-surface/40 mx-auto mb-4" />
                 <p className="text-surface/60">No upcoming events at the moment. Check back soon!</p>
               </div>
             )}
           </div>
+
+          {/* Past Events */}
+          {pastEvents && pastEvents.length > 0 && (
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <span className="bg-surface/40 h-8 w-1 rounded-full"></span>
+                Past Events
+              </h2>
+              <motion.div 
+                className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                {pastEvents.map((event, index) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    index={index} 
+                    isPast
+                    onViewDetails={handleViewEventDetails}
+                  />
+                ))}
+              </motion.div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -354,28 +577,39 @@ const Index = () => {
           </div>
 
           {gallery && gallery.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
               {gallery.map((item, index) => (
-                <div
+                <motion.div
                   key={item.id}
-                  className="group relative overflow-hidden rounded-lg animate-scale-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                  className="group relative overflow-hidden rounded-2xl cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-accent/10 transition-all duration-500"
+                  onClick={() => handleGalleryImageClick(index)}
                 >
                   <img
                     src={item.image_url}
                     alt={item.caption || 'Gallery image'}
-                    className="w-full h-64 object-cover transform transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-64 object-cover transform transition-transform duration-700 group-hover:scale-110"
                   />
-                  {item.caption && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                      <p className="text-surface/80">{item.caption}</p>
-                    </div>
-                  )}
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                    {item.caption && (
+                      <p className="text-white font-medium">{item.caption}</p>
+                    )}
+                    <p className="text-white/70 text-sm mt-1">Click to view</p>
+                  </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
-            <div className="text-center py-12 bg-secondary rounded-lg">
+            <div className="text-center py-12 bg-secondary rounded-2xl">
               <p className="text-surface/60">Gallery images coming soon!</p>
             </div>
           )}
@@ -402,7 +636,7 @@ const Index = () => {
             {/* Contact Form */}
             <div className="animate-fade-in">
               <h2 className="text-3xl font-bold mb-8">Send us a message</h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleContactSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
                     Name
@@ -410,6 +644,8 @@ const Index = () => {
                   <input
                     type="text"
                     id="name"
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
                     required
                   />
@@ -421,6 +657,8 @@ const Index = () => {
                   <input
                     type="email"
                     id="email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
                     required
                   />
@@ -432,6 +670,8 @@ const Index = () => {
                   <textarea
                     id="message"
                     rows={5}
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                     className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
                     required
                   ></textarea>
@@ -440,7 +680,7 @@ const Index = () => {
                   type="submit"
                   className="bg-accent text-primary px-8 py-3 rounded-full font-medium hover:bg-accent/90 transition-colors inline-flex items-center gap-2"
                 >
-                  Send Message <Send size={16} />
+                  Send via WhatsApp <Send size={16} />
                 </button>
               </form>
             </div>
@@ -590,28 +830,34 @@ const Index = () => {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Full Name
+                        Full Name *
                       </label>
                       <input
                         type="text"
+                        value={volunteerForm.name}
+                        onChange={(e) => setVolunteerForm({ ...volunteerForm, name: e.target.value })}
                         className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Email</label>
+                      <label className="block text-sm font-medium mb-2">Email *</label>
                       <input
                         type="email"
+                        value={volunteerForm.email}
+                        onChange={(e) => setVolunteerForm({ ...volunteerForm, email: e.target.value })}
                         className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                         required
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">
-                        Phone Number
+                        Phone Number *
                       </label>
                       <input
                         type="tel"
+                        value={volunteerForm.phone}
+                        onChange={(e) => setVolunteerForm({ ...volunteerForm, phone: e.target.value })}
                         className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
                         required
                       />
@@ -620,8 +866,9 @@ const Index = () => {
                       <label className="block text-sm font-medium mb-2">City</label>
                       <input
                         type="text"
+                        value={volunteerForm.city}
+                        onChange={(e) => setVolunteerForm({ ...volunteerForm, city: e.target.value })}
                         className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
-                        required
                       />
                     </div>
                   </div>
@@ -632,18 +879,19 @@ const Index = () => {
                     </label>
                     <textarea
                       rows={4}
+                      value={volunteerForm.message}
+                      onChange={(e) => setVolunteerForm({ ...volunteerForm, message: e.target.value })}
                       className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
-                      required
                     ></textarea>
                   </div>
 
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     className="w-full bg-accent text-primary px-8 py-3 rounded-full font-medium flex items-center justify-center gap-2"
                   >
-                    Submit Application <Send size={16} />
+                    Submit via WhatsApp <Send size={16} />
                   </motion.button>
                 </form>
               </div>
@@ -651,6 +899,27 @@ const Index = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Gallery Lightbox */}
+      {gallery && (
+        <GalleryLightbox
+          images={gallery.map(item => ({
+            id: item.id,
+            image_url: item.image_url,
+            caption: item.caption
+          }))}
+          initialIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
+
+      {/* Event Details Modal */}
+      <EventDetailsModal
+        event={selectedEvent}
+        isOpen={eventModalOpen}
+        onClose={() => setEventModalOpen(false)}
+      />
     </div>
 
   );

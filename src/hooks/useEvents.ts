@@ -7,6 +7,10 @@ export interface Event {
   title: string;
   description: string | null;
   event_date: string;
+  event_time: string | null;
+  registration_deadline: string | null;
+  location: string | null;
+  google_form_url: string | null;
   image_url: string | null;
   is_active: boolean;
   created_at: string;
@@ -37,6 +41,44 @@ export const useActiveEvents = () => {
         .select('*')
         .eq('is_active', true)
         .order('event_date', { ascending: true });
+      
+      if (error) throw error;
+      return data as Event[];
+    },
+  });
+};
+
+// Fetch upcoming events (event_date >= today)
+export const useUpcomingEvents = () => {
+  return useQuery({
+    queryKey: ['events', 'upcoming'],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_active', true)
+        .gte('event_date', today)
+        .order('event_date', { ascending: true });
+      
+      if (error) throw error;
+      return data as Event[];
+    },
+  });
+};
+
+// Fetch past events (event_date < today)
+export const usePastEvents = () => {
+  return useQuery({
+    queryKey: ['events', 'past'],
+    queryFn: async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_active', true)
+        .lt('event_date', today)
+        .order('event_date', { ascending: false });
       
       if (error) throw error;
       return data as Event[];
