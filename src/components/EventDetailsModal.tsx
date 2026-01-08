@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Calendar, Clock, MapPin, ExternalLink } from 'lucide-react';
+import React, { forwardRef } from 'react';
+import { X, Calendar, Clock, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -21,25 +21,22 @@ interface EventDetailsModalProps {
   onClose: () => void;
 }
 
-const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
-  event,
-  isOpen,
-  onClose,
-}) => {
-  if (!isOpen || !event) return null;
+const EventDetailsModal = forwardRef<HTMLDivElement, EventDetailsModalProps>(
+  ({ event, isOpen, onClose }, ref) => {
+    if (!isOpen || !event) return null;
 
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours), parseInt(minutes));
-    return format(date, 'h:mm a');
-  };
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(':');
+      const date = new Date();
+      date.setHours(parseInt(hours), parseInt(minutes));
+      return format(date, 'h:mm a');
+    };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -137,6 +134,9 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
       )}
     </AnimatePresence>
   );
-};
+  }
+);
+
+EventDetailsModal.displayName = 'EventDetailsModal';
 
 export default EventDetailsModal;

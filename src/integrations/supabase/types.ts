@@ -64,6 +64,7 @@ export type Database = {
           cover_image_url: string | null
           created_at: string
           description: string | null
+          display_order: number | null
           id: string
           title: string
           updated_at: string
@@ -72,6 +73,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           title: string
           updated_at?: string
@@ -80,6 +82,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          display_order?: number | null
           id?: string
           title?: string
           updated_at?: string
