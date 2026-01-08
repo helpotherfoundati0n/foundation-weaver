@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Loader2 } from 'lucide-react';
-import { useAlbums, useCreateAlbum, useUpdateAlbum, useDeleteAlbum, Album } from '@/hooks/useAlbums';
+import { useAlbums, useCreateAlbum, useUpdateAlbum, useDeleteAlbum, useReorderAlbums, Album } from '@/hooks/useAlbums';
 import { useGallery, useCreateGalleryItem, useDeleteGalleryItem, useReorderGallery, GalleryItem } from '@/hooks/useGallery';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,6 +48,105 @@ interface SortablePhotoProps {
   photo: GalleryItem;
   onDelete: (id: string) => void;
 }
+
+interface SortableAlbumItemProps {
+  album: Album;
+  isSelected: boolean;
+  onSelect: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+const SortableAlbumItem: React.FC<SortableAlbumItemProps> = ({ 
+  album, 
+  isSelected, 
+  onSelect, 
+  onEdit, 
+  onDelete 
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: album.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1 : 0,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onClick={onSelect}
+      className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors ${
+        isSelected
+          ? 'bg-accent/20 border border-accent/30'
+          : 'bg-surface/5 hover:bg-surface/10 border border-transparent'
+      }`}
+    >
+      {/* Drag Handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="p-1.5 rounded bg-surface/10 text-surface/50 cursor-grab active:cursor-grabbing hover:bg-surface/20 hover:text-surface transition-colors"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <GripVertical size={16} />
+      </div>
+      
+      <div className="w-16 h-12 rounded-lg overflow-hidden bg-surface/10 flex-shrink-0">
+        {album.cover_image_url ? (
+          <img
+            src={album.cover_image_url}
+            alt={album.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <Camera size={20} className="text-surface/30" />
+          </div>
+        )}
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <h3 className="text-surface font-medium truncate">{album.title}</h3>
+        <p className="text-surface/50 text-sm">{album.photo_count || 0} photos</p>
+      </div>
+      
+      <div className="flex gap-1">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 text-surface/50 hover:text-surface"
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+        >
+          <Pencil size={16} />
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-400/10"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Trash2 size={16} />
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 const SortablePhoto: React.FC<SortablePhotoProps> = ({ photo, onDelete }) => {
   const {
@@ -109,6 +208,7 @@ const AdminAlbums: React.FC = () => {
   const createAlbum = useCreateAlbum();
   const updateAlbum = useUpdateAlbum();
   const deleteAlbum = useDeleteAlbum();
+  const reorderAlbums = useReorderAlbums();
   const createPhoto = useCreateGalleryItem();
   const deletePhoto = useDeleteGalleryItem();
   const reorderPhotos = useReorderGallery();
@@ -118,6 +218,7 @@ const AdminAlbums: React.FC = () => {
   const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [localAlbums, setLocalAlbums] = useState<Album[]>([]);
 
   // Form states
   const [albumTitle, setAlbumTitle] = useState('');
@@ -130,9 +231,16 @@ const AdminAlbums: React.FC = () => {
   const [photoCaption, setPhotoCaption] = useState('');
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
+
+  // Sync local albums with fetched data
+  React.useEffect(() => {
+    if (albums) {
+      setLocalAlbums(albums);
+    }
+  }, [albums]);
 
   const albumPhotos = selectedAlbum
     ? allPhotos?.filter((p) => (p as any).album_id === selectedAlbum.id) || []
@@ -247,7 +355,7 @@ const AdminAlbums: React.FC = () => {
     window.location.reload();
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handlePhotoDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -261,6 +369,27 @@ const AdminAlbums: React.FC = () => {
     }));
 
     reorderPhotos.mutate(updates);
+  };
+
+  const handleAlbumDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = localAlbums.findIndex((a) => a.id === active.id);
+    const newIndex = localAlbums.findIndex((a) => a.id === over.id);
+
+    const reordered = arrayMove(localAlbums, oldIndex, newIndex);
+    
+    // Update local state immediately for smooth UI
+    setLocalAlbums(reordered);
+    
+    // Persist to database
+    const updates = reordered.map((album, index) => ({
+      id: album.id,
+      display_order: index,
+    }));
+
+    reorderAlbums.mutate(updates);
   };
 
   if (albumsLoading) {
@@ -286,66 +415,25 @@ const AdminAlbums: React.FC = () => {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Albums List */}
         <div className="bg-secondary rounded-xl p-6 border border-surface/10">
-          <h2 className="text-lg font-semibold text-surface mb-4">Albums</h2>
+          <h2 className="text-lg font-semibold text-surface mb-4">Albums <span className="text-surface/40 text-sm font-normal">(drag to reorder)</span></h2>
           
-          {albums && albums.length > 0 ? (
-            <div className="space-y-3">
-              {albums.map((album) => (
-                <div
-                  key={album.id}
-                  onClick={() => setSelectedAlbum(album)}
-                  className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors ${
-                    selectedAlbum?.id === album.id
-                      ? 'bg-accent/20 border border-accent/30'
-                      : 'bg-surface/5 hover:bg-surface/10 border border-transparent'
-                  }`}
-                >
-                  <div className="w-16 h-12 rounded-lg overflow-hidden bg-surface/10 flex-shrink-0">
-                    {album.cover_image_url ? (
-                      <img
-                        src={album.cover_image_url}
-                        alt={album.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Camera size={20} className="text-surface/30" />
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-surface font-medium truncate">{album.title}</h3>
-                    <p className="text-surface/50 text-sm">{album.photo_count || 0} photos</p>
-                  </div>
-                  
-                  <div className="flex gap-1">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 text-surface/50 hover:text-surface"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenAlbumDialog(album);
-                      }}
-                    >
-                      <Pencil size={16} />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 text-red-400 hover:text-red-500 hover:bg-red-400/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDeleteConfirm(album.id);
-                      }}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
+          {localAlbums && localAlbums.length > 0 ? (
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleAlbumDragEnd}>
+              <SortableContext items={localAlbums.map((a) => a.id)} strategy={rectSortingStrategy}>
+                <div className="space-y-3">
+                  {localAlbums.map((album) => (
+                    <SortableAlbumItem
+                      key={album.id}
+                      album={album}
+                      isSelected={selectedAlbum?.id === album.id}
+                      onSelect={() => setSelectedAlbum(album)}
+                      onEdit={() => handleOpenAlbumDialog(album)}
+                      onDelete={() => setDeleteConfirm(album.id)}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           ) : (
             <div className="text-center py-8 text-surface/50">
               <Camera size={48} className="mx-auto mb-3 opacity-50" />
@@ -390,7 +478,7 @@ const AdminAlbums: React.FC = () => {
 
               {/* Photo Grid with Drag & Drop */}
               {albumPhotos.length > 0 ? (
-                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handlePhotoDragEnd}>
                   <SortableContext items={albumPhotos.map((p) => p.id)} strategy={rectSortingStrategy}>
                     <div className="grid grid-cols-3 gap-2">
                       {albumPhotos.map((photo) => (
