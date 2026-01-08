@@ -59,6 +59,33 @@ export type Database = {
         }
         Relationships: []
       }
+      albums: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_info: {
         Row: {
           address: string | null
@@ -180,6 +207,7 @@ export type Database = {
       }
       gallery: {
         Row: {
+          album_id: string | null
           caption: string | null
           created_at: string | null
           display_order: number | null
@@ -187,6 +215,7 @@ export type Database = {
           image_url: string
         }
         Insert: {
+          album_id?: string | null
           caption?: string | null
           created_at?: string | null
           display_order?: number | null
@@ -194,13 +223,22 @@ export type Database = {
           image_url: string
         }
         Update: {
+          album_id?: string | null
           caption?: string | null
           created_at?: string | null
           display_order?: number | null
           id?: string
           image_url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gallery_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "albums"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_content: {
         Row: {

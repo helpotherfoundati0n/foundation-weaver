@@ -12,6 +12,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEvents from "./pages/admin/AdminEvents";
 import AdminGallery from "./pages/admin/AdminGallery";
+import AdminAlbums from "./pages/admin/AdminAlbums";
 import AdminSettings from "./pages/admin/AdminSettings";
 import VisualCMS from "./pages/admin/VisualCMS";
 import UpdatePassword from "./pages/auth/UpdatePassword";
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="events" element={<AdminEvents />} />
               <Route path="gallery" element={<AdminGallery />} />
+              <Route path="albums" element={<AdminAlbums />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
