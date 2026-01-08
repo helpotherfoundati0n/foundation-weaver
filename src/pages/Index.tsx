@@ -4,14 +4,16 @@ import Navbar from "../components/Navbar";
 import { TypewriterEffectSmooth } from "../components/TypewriterEffect";
 import { AnimatePresence, motion } from "framer-motion";
 import { useUpcomingEvents, usePastEvents } from "@/hooks/useEvents";
-import { useGallery } from "@/hooks/useGallery";
+import { useAlbums, useAlbumWithPhotos } from "@/hooks/useAlbums";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useActiveActivities } from "@/hooks/useActivities";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useInView } from "react-intersection-observer";
-import GalleryLightbox from "@/components/GalleryLightbox";
+import AlbumCard from "@/components/AlbumCard";
+import AlbumModal from "@/components/AlbumModal";
+import SkeletonCard from "@/components/SkeletonCard";
 import EventDetailsModal from "@/components/EventDetailsModal";
 import { toast } from "sonner";
 
@@ -157,8 +159,8 @@ const EventCard = ({ event, index, isPast, onViewDetails }: {
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isVolunteerModalOpen, setIsVolunteerModalOpen] = useState(false);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [selectedAlbumId, setSelectedAlbumId] = useState<string | null>(null);
+  const [albumModalOpen, setAlbumModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [eventModalOpen, setEventModalOpen] = useState(false);
 
@@ -171,7 +173,8 @@ const Index = () => {
   // Fetch dynamic data
   const { data: upcomingEvents, isLoading: upcomingLoading } = useUpcomingEvents();
   const { data: pastEvents, isLoading: pastLoading } = usePastEvents();
-  const { data: gallery, isLoading: galleryLoading } = useGallery();
+  const { data: albums, isLoading: albumsLoading } = useAlbums();
+  const { data: selectedAlbum, isLoading: albumLoading } = useAlbumWithPhotos(selectedAlbumId);
   const { data: contactInfo, isLoading: contactLoading } = useContactInfo();
   const { data: siteContent, isLoading: contentLoading } = useSiteContent();
   const { data: activities, isLoading: activitiesLoading } = useActiveActivities();
@@ -240,10 +243,10 @@ ${volunteerForm.message}`;
     setIsVolunteerModalOpen(false);
   };
 
-  // Gallery click handler
-  const handleGalleryImageClick = (index: number) => {
-    setLightboxIndex(index);
-    setLightboxOpen(true);
+  // Album click handler
+  const handleAlbumClick = (albumId: string) => {
+    setSelectedAlbumId(albumId);
+    setAlbumModalOpen(true);
   };
 
   // Event details handler
@@ -273,7 +276,7 @@ ${volunteerForm.message}`;
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isLoading = upcomingLoading || pastLoading || galleryLoading || contactLoading || contentLoading || activitiesLoading;
+  const isLoading = upcomingLoading || pastLoading || contactLoading || contentLoading || activitiesLoading;
 
   if (isLoading) {
     return (
@@ -559,7 +562,7 @@ ${volunteerForm.message}`;
         </div>
       </section>
 
-      {/* Gallery Section */}
+      {/* Gallery Section - Event Albums */}
       <section id="gallery" className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
@@ -576,41 +579,26 @@ ${volunteerForm.message}`;
             </p>
           </div>
 
-          {gallery && gallery.length > 0 ? (
-            <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-            >
-              {gallery.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  className="group relative overflow-hidden rounded-2xl cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-accent/10 transition-all duration-500"
-                  onClick={() => handleGalleryImageClick(index)}
-                >
-                  <img
-                    src={item.image_url}
-                    alt={item.caption || 'Gallery image'}
-                    className="w-full h-64 object-cover transform transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
-                    {item.caption && (
-                      <p className="text-white font-medium">{item.caption}</p>
-                    )}
-                    <p className="text-white/70 text-sm mt-1">Click to view</p>
-                  </div>
-                </motion.div>
+          {albumsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, i) => (
+                <SkeletonCard key={i} type="album" />
               ))}
-            </motion.div>
+            </div>
+          ) : albums && albums.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {albums.map((album, index) => (
+                <AlbumCard
+                  key={album.id}
+                  album={album}
+                  index={index}
+                  onClick={() => handleAlbumClick(album.id)}
+                />
+              ))}
+            </div>
           ) : (
             <div className="text-center py-12 bg-secondary rounded-2xl">
-              <p className="text-surface/60">Gallery images coming soon!</p>
+              <p className="text-surface/60">Gallery albums coming soon!</p>
             </div>
           )}
         </div>
@@ -900,19 +888,16 @@ ${volunteerForm.message}`;
         )}
       </AnimatePresence>
 
-      {/* Gallery Lightbox */}
-      {gallery && (
-        <GalleryLightbox
-          images={gallery.map(item => ({
-            id: item.id,
-            image_url: item.image_url,
-            caption: item.caption
-          }))}
-          initialIndex={lightboxIndex}
-          isOpen={lightboxOpen}
-          onClose={() => setLightboxOpen(false)}
-        />
-      )}
+      {/* Album Modal */}
+      <AlbumModal
+        album={selectedAlbum || null}
+        isOpen={albumModalOpen}
+        onClose={() => {
+          setAlbumModalOpen(false);
+          setSelectedAlbumId(null);
+        }}
+        isLoading={albumLoading}
+      />
 
       {/* Event Details Modal */}
       <EventDetailsModal
