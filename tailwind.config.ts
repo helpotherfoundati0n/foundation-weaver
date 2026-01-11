@@ -2,7 +2,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
-
+  darkMode: 'class',
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -13,10 +13,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#000000",
-        secondary: "#222222",
-        accent: "#FFC107",
-        surface: "#F5F5F5",
+        primary: "hsl(var(--primary))",
+        secondary: "hsl(var(--secondary))",
+        accent: "hsl(var(--accent))",
+        surface: "hsl(var(--surface))",
+        muted: "hsl(var(--muted))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: "hsl(var(--card))",
+        "card-foreground": "hsl(var(--card-foreground))",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        destructive: "hsl(var(--destructive))",
+        "destructive-foreground": "hsl(var(--destructive-foreground))",
+        "muted-foreground": "hsl(var(--muted-foreground))",
+        "accent-foreground": "hsl(var(--accent-foreground))",
         "black-alpha": "rgba(0,0,0,0.7)",
       },
       fontFamily: {

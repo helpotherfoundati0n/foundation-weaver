@@ -8,6 +8,7 @@ import { useAlbums, useAlbumWithPhotos } from "@/hooks/useAlbums";
 import { useContactInfo } from "@/hooks/useContactInfo";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { useActiveActivities } from "@/hooks/useActivities";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { useInView } from "react-intersection-observer";
@@ -15,6 +16,8 @@ import AlbumCard from "@/components/AlbumCard";
 import AlbumModal from "@/components/AlbumModal";
 import SkeletonCard from "@/components/SkeletonCard";
 import EventDetailsModal from "@/components/EventDetailsModal";
+import HeroSlider from "@/components/HeroSlider";
+import Footer from "@/components/Footer";
 import { toast } from "sonner";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -163,6 +166,7 @@ const Index = () => {
   const [albumModalOpen, setAlbumModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [eventModalOpen, setEventModalOpen] = useState(false);
+  const { theme } = useTheme();
 
   // Form states
   const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
@@ -178,6 +182,17 @@ const Index = () => {
   const { data: contactInfo, isLoading: contactLoading } = useContactInfo();
   const { data: siteContent, isLoading: contentLoading } = useSiteContent();
   const { data: activities, isLoading: activitiesLoading } = useActiveActivities();
+
+  // Theme-aware classes
+  const isLight = theme === 'light';
+  const bgPrimary = isLight ? 'bg-white' : 'bg-primary';
+  const bgSecondary = isLight ? 'bg-gray-50' : 'bg-secondary';
+  const textPrimary = isLight ? 'text-black' : 'text-surface';
+  const textSecondary = isLight ? 'text-gray-600' : 'text-surface/80';
+  const cardBg = isLight ? 'bg-white shadow-lg' : 'bg-primary';
+  const inputBg = isLight ? 'bg-white border-2 border-accent' : 'bg-secondary border border-surface/20';
+  const inputText = isLight ? 'text-gray-900 placeholder:text-gray-400' : 'text-surface placeholder:text-surface/40';
+  const headingText = isLight ? 'text-black' : 'text-surface';
 
   // Helper to get content by key
   const getContent = (key: string) => {
@@ -280,18 +295,18 @@ ${volunteerForm.message}`;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-primary flex items-center justify-center">
+      <div className={`min-h-screen ${bgPrimary} flex items-center justify-center`}>
         <Loader2 className="h-12 w-12 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-primary text-surface">
+    <div className={`min-h-screen ${bgPrimary} ${textPrimary}`}>
       <Navbar activeSection={activeSection} />
       
-      {/* Home Section */}
-      <section id="home" className="w-full h-screen flex items-center px-4 bg-home bg-cover bg-center">
+      {/* Home Section with Hero Slider */}
+      <HeroSlider>
         <div className="max-w-7xl mx-auto">
           <div className="text-center animate-fade-in">
             <div className="flex flex-col items-center leading-tight">
@@ -309,7 +324,7 @@ ${volunteerForm.message}`;
              />
             </div>
 
-            <p className="text-lg md:text-xl text-surface/80 max-w-2xl mx-auto mb-8">
+            <p className={`text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-8`}>
               {getContent('hero_subtitle')?.content || 'Join us in our mission to assist the underprivileged through education and healthcare initiatives.'}
             </p>
             <a href="#contact">
@@ -319,20 +334,20 @@ ${volunteerForm.message}`;
             </a>
           </div>
         </div>
-      </section>
+      </HeroSlider>
 
       {/* About Us & What We Do Section */}
-      <section id="about-what-we-do" className="py-8 px-4 bg-secondary">
+      <section id="about-what-we-do" className={`py-8 px-4 ${bgSecondary}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center typewriter-title">
+            <div className={`flex justify-center typewriter-title ${headingText}`}>
               <TypewriterEffectSmooth
                 words={[
                   {text:"About"},{text:"Us"},{text:"&"},{text:"What"},{text:"We"},{text:"Do", className:"text-accent"}
                 ]}
               />
             </div>
-            <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
+            <p className={`text-lg md:text-xl ${textSecondary} max-w-3xl mx-auto`}>
               {getContent('about_content')?.content || 'Founded in 2025, our foundation grew out of a deep-rooted bond of friendship and a shared mission to serve.'}
             </p>
           </div>
@@ -343,7 +358,7 @@ ${volunteerForm.message}`;
               <h2 className="text-3xl font-bold mb-6">
                 {getContent('mission_title')?.content || 'Our Mission'}
               </h2>
-              <p className="text-surface/80">
+              <p className={textSecondary}>
                 {getContent('mission_content')?.content || 'To centralize efforts in aiding the needy and expanding our reach to help more individuals through medical assistance, education support, and self-reliance initiatives.'}
               </p>
             </div>
@@ -351,7 +366,7 @@ ${volunteerForm.message}`;
               <h2 className="text-3xl font-bold mb-6">
                 {getContent('vision_title')?.content || 'Our Vision'}
               </h2>
-              <p className="text-surface/80">
+              <p className={textSecondary}>
                 {getContent('vision_content')?.content || 'To create a society where every individual has access to basic healthcare, quality education, and opportunities for self-reliance, regardless of their economic status.'}
               </p>
             </div>
@@ -373,16 +388,16 @@ ${volunteerForm.message}`;
                     <div className={`animate-fade-in ${!isEven ? 'order-1 md:order-2' : ''}`}>
                       <IconComponent size={48} className="text-accent mb-6" />
                       <h3 className="text-2xl font-bold mb-6">{activity.title}</h3>
-                      <p className="text-surface/80 mb-4">{activity.description}</p>
+                      <p className={`${textSecondary} mb-4`}>{activity.description}</p>
                       {activity.list_items && activity.list_items.length > 0 && (
-                        <ul className="list-disc list-inside text-surface/80 space-y-2">
+                        <ul className={`list-disc list-inside ${textSecondary} space-y-2`}>
                           {activity.list_items.map((item, i) => (
                             <li key={i}>{item}</li>
                           ))}
                         </ul>
                       )}
                     </div>
-                    <div className={`bg-primary p-8 rounded-lg animate-fade-in delay-100 ${!isEven ? 'order-2 md:order-1' : ''}`}>
+                    <div className={`${cardBg} p-8 rounded-lg animate-fade-in delay-100 ${!isEven ? 'order-2 md:order-1' : ''}`}>
                       {activity.image_url ? (
                         <img 
                           src={activity.image_url}
@@ -403,8 +418,8 @@ ${volunteerForm.message}`;
                 );
               })
             ) : (
-              <div className="text-center py-12 bg-primary rounded-lg">
-                <p className="text-surface/60">No activities configured yet.</p>
+              <div className={`text-center py-12 ${cardBg} rounded-lg`}>
+                <p className={textSecondary}>No activities configured yet.</p>
               </div>
             )}
           </div>
@@ -421,7 +436,7 @@ ${volunteerForm.message}`;
                 <h3 className="text-xl font-semibold mb-4">
                   {getContent('value_1_title')?.content || 'Community First'}
                 </h3>
-                <p className="text-surface/80">
+                <p className={textSecondary}>
                   {getContent('value_1_content')?.content || 'We prioritize the needs of our community in everything we do.'}
                 </p>
               </div>
@@ -430,7 +445,7 @@ ${volunteerForm.message}`;
                 <h3 className="text-xl font-semibold mb-4">
                   {getContent('value_2_title')?.content || 'Compassion'}
                 </h3>
-                <p className="text-surface/80">
+                <p className={textSecondary}>
                   {getContent('value_2_content')?.content || 'We approach every situation with empathy and understanding.'}
                 </p>
               </div>
@@ -439,7 +454,7 @@ ${volunteerForm.message}`;
                 <h3 className="text-xl font-semibold mb-4">
                   {getContent('value_3_title')?.content || 'Excellence'}
                 </h3>
-                <p className="text-surface/80">
+                <p className={textSecondary}>
                   {getContent('value_3_content')?.content || 'We strive for excellence in our service to those in need.'}
                 </p>
               </div>
@@ -447,11 +462,11 @@ ${volunteerForm.message}`;
           </div>
 
           {/* Call to Action */}
-          <div className="text-center bg-primary p-8 rounded-lg">
+          <div className={`text-center ${cardBg} p-8 rounded-lg`}>
             <h2 className="text-3xl font-bold mb-6">
               Ready to Make a <span className="text-accent">Difference?</span>
             </h2>
-            <p className="text-surface/80 mb-8 max-w-2xl mx-auto">
+            <p className={`${textSecondary} mb-8 max-w-2xl mx-auto`}>
               Join us in our mission to create positive change. Whether through
               donations, volunteering, or spreading awareness, every contribution
               matters.
@@ -486,17 +501,17 @@ ${volunteerForm.message}`;
       </section>
 
       {/* Events Section */}
-      <section id="events" className="py-8 px-4 bg-secondary">
+      <section id="events" className={`py-8 px-4 ${bgSecondary}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center typewriter-title">
+            <div className={`flex justify-center typewriter-title ${headingText}`}>
               <TypewriterEffectSmooth
                 words={[
                   {text:"Our"},{text:"Events", className:"text-accent"}
                 ]}
               />
             </div>
-            <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
+            <p className={`text-lg md:text-xl ${textSecondary} max-w-3xl mx-auto`}>
               Join us in making a difference. Check out our upcoming events and see
               the impact of our past initiatives.
             </p>
@@ -526,9 +541,9 @@ ${volunteerForm.message}`;
                 ))}
               </motion.div>
             ) : (
-              <div className="text-center py-12 bg-primary rounded-2xl">
-                <Calendar className="h-12 w-12 text-surface/40 mx-auto mb-4" />
-                <p className="text-surface/60">No upcoming events at the moment. Check back soon!</p>
+              <div className={`text-center py-12 ${cardBg} rounded-2xl`}>
+                <Calendar className={`h-12 w-12 ${textSecondary} mx-auto mb-4`} />
+                <p className={textSecondary}>No upcoming events at the moment. Check back soon!</p>
               </div>
             )}
           </div>
@@ -563,7 +578,7 @@ ${volunteerForm.message}`;
       </section>
 
       {/* Gallery Section - Event Albums */}
-      <section id="gallery" className="py-8 px-4">
+      <section id="gallery" className={`py-8 px-4 ${bgPrimary}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <div className="flex justify-center typewriter-title">
@@ -573,7 +588,7 @@ ${volunteerForm.message}`;
                 ]}
               />
             </div>
-            <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
+            <p className={`text-lg md:text-xl ${textSecondary} max-w-3xl mx-auto`}>
               A visual journey through our initiatives and the lives we've touched
               along the way.
             </p>
@@ -597,25 +612,25 @@ ${volunteerForm.message}`;
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 bg-secondary rounded-2xl">
-              <p className="text-surface/60">Gallery albums coming soon!</p>
+            <div className={`text-center py-12 ${bgSecondary} rounded-2xl`}>
+              <p className={textSecondary}>Gallery albums coming soon!</p>
             </div>
           )}
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-8 px-4 bg-secondary">
+      <section id="contact" className={`py-8 px-4 ${bgSecondary}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center typewriter-title">
+            <div className={`flex justify-center typewriter-title ${headingText}`}>
               <TypewriterEffectSmooth
                 words={[
                   {text:"Contact"},{text:"Us", className:"text-accent"}
                 ]}
               />
             </div>
-            <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
+            <p className={`text-lg md:text-xl ${textSecondary} max-w-3xl mx-auto`}>
               We're here to help. Reach out to us with any questions or concerns.
             </p>
           </div>
@@ -634,7 +649,7 @@ ${volunteerForm.message}`;
                     id="name"
                     value={contactForm.name}
                     onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
+                    className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:outline-none`}
                     required
                   />
                 </div>
@@ -647,7 +662,7 @@ ${volunteerForm.message}`;
                     id="email"
                     value={contactForm.email}
                     onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
+                    className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:outline-none`}
                     required
                   />
                 </div>
@@ -660,7 +675,7 @@ ${volunteerForm.message}`;
                     rows={5}
                     value={contactForm.message}
                     onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                    className="w-full px-4 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none"
+                    className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:outline-none`}
                     required
                   ></textarea>
                 </div>
@@ -681,21 +696,21 @@ ${volunteerForm.message}`;
                   <Mail className="text-accent" size={24} />
                   <div>
                     <h3 className="font-semibold mb-2">Email</h3>
-                    <p className="text-surface/80">{contactInfo?.email || 'help@jaipas.lu'}</p>
+                    <p className={textSecondary}>{contactInfo?.email || 'help@jaipas.lu'}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Phone className="text-accent" size={24} />
                   <div>
                     <h3 className="font-semibold mb-2">Phone</h3>
-                    <p className="text-surface/80">{contactInfo?.phone || '+352 123 456 789'}</p>
+                    <p className={textSecondary}>{contactInfo?.phone || '+352 123 456 789'}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <MapPin className="text-accent" size={24} />
                   <div>
                     <h3 className="font-semibold mb-2">Address</h3>
-                    <p className="text-surface/80 whitespace-pre-line">
+                    <p className={`${textSecondary} whitespace-pre-line`}>
                       {contactInfo?.address || 'Luxembourg City, Luxembourg'}
                     </p>
                   </div>
@@ -708,17 +723,17 @@ ${volunteerForm.message}`;
 
 
       {/* Donate Section */}
-      <section id="donate" className="py-8 px-4 bg-secondary">
+      <section id="donate" className={`py-8 px-4 ${bgSecondary}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <div className="flex justify-center typewriter-title">
+            <div className={`flex justify-center typewriter-title ${headingText}`}>
               <TypewriterEffectSmooth
                 words={[
                   {text:"Make"},{text:"a"},{text:"Difference", className:"text-accent"}
                 ]}
               />
             </div>
-            <p className="text-lg md:text-xl text-surface/80 max-w-3xl mx-auto">
+            <p className={`text-lg md:text-xl ${textSecondary} max-w-3xl mx-auto`}>
               Your contribution can help us continue our mission of supporting those
               in need through various initiatives.
             </p>
@@ -729,10 +744,10 @@ ${volunteerForm.message}`;
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
             {/* Sadka & Zakat */}
-            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-100 flex flex-col items-center text-center">
+            <div className={`${cardBg} p-6 rounded-lg animate-scale-in delay-100 flex flex-col items-center text-center`}>
               <QrCode className="text-accent mb-6" size={60} />
               <h3 className="text-xl font-semibold mb-4">Sadka & Zakat</h3>
-              <div className="space-y-8 text-surface/80">
+              <div className={`space-y-8 ${textSecondary}`}>
                 <p>Scan QR code for Sadka & Zakat donations:</p>
                 <div className="bg-white p-4 rounded-lg inline-block">
                   {contactInfo?.qr_code_url ? (
@@ -750,10 +765,10 @@ ${volunteerForm.message}`;
             </div>
 
             {/* Lillah */}
-            <div className="bg-primary p-6 rounded-lg animate-scale-in delay-200 flex flex-col items-center text-center">
+            <div className={`${cardBg} p-6 rounded-lg animate-scale-in delay-200 flex flex-col items-center text-center`}>
               <QrCode className="text-accent mb-6" size={60} />
               <h3 className="text-xl font-semibold mb-4">Lillah</h3>
-              <div className="space-y-8 text-surface/80">
+              <div className={`space-y-8 ${textSecondary}`}>
                 <p>Scan QR code for Lillah donations:</p>
                 <div className="bg-white p-4 rounded-lg inline-block">
                   {contactInfo?.qr_code_url_2 ? (
@@ -784,7 +799,7 @@ ${volunteerForm.message}`;
             onClick={() => setIsVolunteerModalOpen(false)}
           >
             <motion.div
-              className="bg-primary rounded-2xl max-w-2xl w-full shadow-xl overflow-hidden"
+              className={`${cardBg} rounded-2xl max-w-2xl w-full shadow-xl overflow-hidden`}
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
@@ -798,7 +813,7 @@ ${volunteerForm.message}`;
                 </h2>
                 <button
                   onClick={() => setIsVolunteerModalOpen(false)}
-                  className="text-surface hover:text-accent transition-colors"
+                  className={`${textSecondary} hover:text-accent transition-colors`}
                 >
                   <X size={24} />
                 </button>
@@ -806,7 +821,7 @@ ${volunteerForm.message}`;
 
               {/* Body */}
               <div className="p-6 space-y-6">
-                <p className="text-surface/70 text-center max-w-md mx-auto">
+                <p className={`${textSecondary} text-center max-w-md mx-auto`}>
                   Join our team of dedicated volunteers and help us make a difference
                   in the lives of those in need.
                 </p>
@@ -824,7 +839,7 @@ ${volunteerForm.message}`;
                         type="text"
                         value={volunteerForm.name}
                         onChange={(e) => setVolunteerForm({ ...volunteerForm, name: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
                         required
                       />
                     </div>
@@ -834,7 +849,7 @@ ${volunteerForm.message}`;
                         type="email"
                         value={volunteerForm.email}
                         onChange={(e) => setVolunteerForm({ ...volunteerForm, email: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
                         required
                       />
                     </div>
@@ -846,7 +861,7 @@ ${volunteerForm.message}`;
                         type="tel"
                         value={volunteerForm.phone}
                         onChange={(e) => setVolunteerForm({ ...volunteerForm, phone: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
                         required
                       />
                     </div>
@@ -856,7 +871,7 @@ ${volunteerForm.message}`;
                         type="text"
                         value={volunteerForm.city}
                         onChange={(e) => setVolunteerForm({ ...volunteerForm, city: e.target.value })}
-                        className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
                       />
                     </div>
                   </div>
@@ -869,7 +884,7 @@ ${volunteerForm.message}`;
                       rows={4}
                       value={volunteerForm.message}
                       onChange={(e) => setVolunteerForm({ ...volunteerForm, message: e.target.value })}
-                      className="w-full px-4 py-2 rounded-lg bg-secondary text-surface border border-surface/20 focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                      className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
                     ></textarea>
                   </div>
 
@@ -905,6 +920,9 @@ ${volunteerForm.message}`;
         isOpen={eventModalOpen}
         onClose={() => setEventModalOpen(false)}
       />
+
+      {/* Footer */}
+      <Footer />
     </div>
 
   );

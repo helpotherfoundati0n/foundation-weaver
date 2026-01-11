@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useSiteContent, useUpdateSiteContent, useCreateSiteContent } from '@/hooks/useSiteContent';
 import { Loader2, Save, Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import AdminHeroImages from './AdminHeroImages';
 
 const AdminContent = () => {
   const { data: content, isLoading } = useSiteContent();
@@ -105,6 +106,9 @@ const AdminContent = () => {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Hero Slider Images Section */}
+      <AdminHeroImages />
 
       <div className="grid gap-6">
         {content?.map((item) => (

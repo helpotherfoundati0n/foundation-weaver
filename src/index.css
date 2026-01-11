@@ -6,6 +6,68 @@
 @tailwind utilities;
 
 @layer base {
+  /* Dark Mode (Default) */
+  :root {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 96%;
+    
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 96%;
+    
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 96%;
+    
+    --surface: 0 0% 96%;
+    --surface-foreground: 0 0% 0%;
+    
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
+    
+    --accent: 45 100% 51%;
+    --accent-foreground: 0 0% 0%;
+    
+    --card: 0 0% 13%;
+    --card-foreground: 0 0% 96%;
+    
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 45 100% 51%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+  }
+
+  /* Light Mode */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
+    
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 9%;
+    
+    --secondary: 0 0% 97%;
+    --secondary-foreground: 0 0% 9%;
+    
+    --surface: 0 0% 9%;
+    --surface-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 45%;
+    
+    --accent: 45 100% 42%;
+    --accent-foreground: 0 0% 0%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 45 100% 42%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -13,10 +75,30 @@
   body {
     @apply bg-primary text-surface antialiased;
   }
+
+  /* Smooth theme transitions */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+  }
+
+  /* Disable transitions on page load */
+  .no-transitions *,
+  .no-transitions *::before,
+  .no-transitions *::after {
+    transition: none !important;
+  }
 }
 
 @layer utilities {
   .glass {
     @apply bg-black-alpha backdrop-blur-md border border-surface/10;
+  }
+  
+  .glass-light {
+    @apply bg-white/70 backdrop-blur-md border border-border shadow-lg;
   }
 }

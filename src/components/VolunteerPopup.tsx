@@ -53,7 +53,7 @@ const VolunteerPopup = ({ isOpen, onClose }: VolunteerPopupProps) => {
               <input
                 type="text"
                 id="popup-name"
-                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border-2 border-accent focus:border-accent focus:outline-none transition-colors"
                 required
               />
             </div>
@@ -64,7 +64,7 @@ const VolunteerPopup = ({ isOpen, onClose }: VolunteerPopupProps) => {
               <input
                 type="email"
                 id="popup-email"
-                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border-2 border-accent focus:border-accent focus:outline-none transition-colors"
                 required
               />
             </div>
@@ -75,7 +75,7 @@ const VolunteerPopup = ({ isOpen, onClose }: VolunteerPopupProps) => {
               <input
                 type="tel"
                 id="popup-phone"
-                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none transition-colors"
+                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border-2 border-accent focus:border-accent focus:outline-none transition-colors"
                 required
               />
             </div>
@@ -86,8 +86,7 @@ const VolunteerPopup = ({ isOpen, onClose }: VolunteerPopupProps) => {
               <input
                 type="text"
                 id="popup-city"
-                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none transition-colors"
-                required
+                className="w-full px-3 py-2 rounded-lg bg-primary text-surface border-2 border-accent focus:border-accent focus:outline-none transition-colors"
               />
             </div>
           </div>
@@ -98,7 +97,7 @@ const VolunteerPopup = ({ isOpen, onClose }: VolunteerPopupProps) => {
             <textarea
               id="popup-message"
               rows={3}
-              className="w-full px-3 py-2 rounded-lg bg-primary text-surface border border-surface/10 focus:border-accent focus:outline-none transition-colors"
+              className="w-full px-3 py-2 rounded-lg bg-primary text-surface border-2 border-accent focus:border-accent focus:outline-none transition-colors"
               placeholder="Tell us about your motivation to volunteer..."
               required
             ></textarea>

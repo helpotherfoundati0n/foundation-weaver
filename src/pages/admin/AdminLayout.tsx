@@ -29,6 +29,7 @@ const AdminLayout = () => {
     { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/admin/events', icon: Calendar, label: 'Events' },
     { to: '/admin/albums', icon: Image, label: 'Albums' },
+    { to: '/admin/hero-images', icon: Image, label: 'Hero Images' },
     { to: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
