@@ -16,6 +16,8 @@ import AlbumCard from "@/components/AlbumCard";
 import AlbumModal from "@/components/AlbumModal";
 import SkeletonCard from "@/components/SkeletonCard";
 import EventDetailsModal from "@/components/EventDetailsModal";
+import VolunteerPopup from "@/components/VolunteerPopup";
+import LazyImage from "@/components/LazyImage";
 import HeroSlider from "@/components/HeroSlider";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
@@ -74,9 +76,10 @@ const EventCard = ({ event, index, isPast, onViewDetails }: {
     >
       {event.image_url && (
         <div className="relative h-48 overflow-hidden">
-          <img
+          <LazyImage
             src={event.image_url}
             alt={event.title}
+            containerClassName="absolute inset-0"
             className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -233,23 +236,30 @@ ${contactForm.message}`;
   // WhatsApp redirect for volunteer form
   const handleVolunteerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!volunteerForm.name.trim() || !volunteerForm.email.trim() || !volunteerForm.phone.trim()) {
+    const form = e.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
+    const name = (data.get('name') as string || volunteerForm.name).trim();
+    const email = (data.get('email') as string || volunteerForm.email).trim();
+    const phone = (data.get('phone') as string || volunteerForm.phone).trim();
+    const city = (data.get('city') as string || volunteerForm.city).trim();
+    const message = (data.get('message') as string || volunteerForm.message).trim();
+
+    if (!name || !email || !phone) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    const message = `*New Volunteer Application*
+    const waMessage = `*New Volunteer Application*
     
-*Name:* ${volunteerForm.name}
-*Email:* ${volunteerForm.email}
-*Phone:* ${volunteerForm.phone}
-*City:* ${volunteerForm.city}
+*Name:* ${name}
+*Email:* ${email}
+*Phone:* ${phone}
+*City:* ${city}
 
 *Why they want to volunteer:*
-${volunteerForm.message}`;
+${message}`;
 
-    const encodedMessage = encodeURIComponent(message);
+    const encodedMessage = encodeURIComponent(waMessage);
     const whatsappUrl = `https://wa.me/${getWhatsAppNumber()}?text=${encodedMessage}`;
     
     window.open(whatsappUrl, '_blank');
@@ -788,120 +798,12 @@ ${volunteerForm.message}`;
         </div>
       </section>
 
-      {/* Volunteer Modal */}
-      <AnimatePresence>
-        {isVolunteerModalOpen && (
-          <motion.div
-            className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsVolunteerModalOpen(false)}
-          >
-            <motion.div
-              className={`${cardBg} rounded-2xl max-w-2xl w-full shadow-xl overflow-hidden`}
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 50, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 100, damping: 20 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="flex justify-between items-center px-6 py-4 border-b border-surface/10">
-                <h2 className="text-xl font-bold">
-                  Become a <span className="text-accent">Volunteer</span>
-                </h2>
-                <button
-                  onClick={() => setIsVolunteerModalOpen(false)}
-                  className={`${textSecondary} hover:text-accent transition-colors`}
-                >
-                  <X size={24} />
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 space-y-6">
-                <p className={`${textSecondary} text-center max-w-md mx-auto`}>
-                  Join our team of dedicated volunteers and help us make a difference
-                  in the lives of those in need.
-                </p>
-
-                <form
-                  onSubmit={handleVolunteerSubmit}
-                  className="space-y-6 animate-fade-in"
-                >
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={volunteerForm.name}
-                        onChange={(e) => setVolunteerForm({ ...volunteerForm, name: e.target.value })}
-                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Email *</label>
-                      <input
-                        type="email"
-                        value={volunteerForm.email}
-                        onChange={(e) => setVolunteerForm({ ...volunteerForm, email: e.target.value })}
-                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        value={volunteerForm.phone}
-                        onChange={(e) => setVolunteerForm({ ...volunteerForm, phone: e.target.value })}
-                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">City</label>
-                      <input
-                        type="text"
-                        value={volunteerForm.city}
-                        onChange={(e) => setVolunteerForm({ ...volunteerForm, city: e.target.value })}
-                        className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Why do you want to volunteer?
-                    </label>
-                    <textarea
-                      rows={4}
-                      value={volunteerForm.message}
-                      onChange={(e) => setVolunteerForm({ ...volunteerForm, message: e.target.value })}
-                      className={`w-full px-4 py-2 rounded-lg ${inputBg} ${inputText} focus:border-accent focus:ring-1 focus:ring-accent outline-none`}
-                    ></textarea>
-                  </div>
-
-                  <motion.button
-                    type="submit"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-accent text-primary px-8 py-3 rounded-full font-medium flex items-center justify-center gap-2"
-                  >
-                    Submit via WhatsApp <Send size={16} />
-                  </motion.button>
-                </form>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Volunteer Modal — rendered via portal */}
+      <VolunteerPopup
+        isOpen={isVolunteerModalOpen}
+        onClose={() => setIsVolunteerModalOpen(false)}
+        onSubmit={handleVolunteerSubmit}
+      />
 
       {/* Album Modal */}
       <AlbumModal
