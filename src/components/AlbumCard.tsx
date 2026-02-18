@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { Camera } from 'lucide-react';
 import { Album } from '@/hooks/useAlbums';
+import LazyImage from './LazyImage';
 
 interface AlbumCardProps {
   album: Album;
@@ -23,9 +24,10 @@ const AlbumCard = forwardRef<HTMLDivElement, AlbumCardProps>(
         {/* Cover Image */}
         <div className="absolute inset-0">
           {album.cover_image_url ? (
-            <img
+            <LazyImage
               src={album.cover_image_url}
               alt={album.title}
+              containerClassName="absolute inset-0"
               className="w-full h-full object-cover transition-transform duration-700 ease-out md:group-hover:scale-105"
             />
           ) : (
