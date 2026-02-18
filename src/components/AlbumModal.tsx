@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera } from 'lucide-react';
 import { AlbumWithPhotos } from '@/hooks/useAlbums';
 import GalleryLightbox from './GalleryLightbox';
+import ModalPortal from './ModalPortal';
+import LazyImage from './LazyImage';
 
 interface AlbumModalProps {
   album: AlbumWithPhotos | null;
@@ -23,7 +25,7 @@ const AlbumModal: React.FC<AlbumModalProps> = ({ album, isOpen, onClose, isLoadi
   if (!isOpen) return null;
 
   return (
-    <>
+    <ModalPortal>
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -65,7 +67,7 @@ const AlbumModal: React.FC<AlbumModalProps> = ({ album, isOpen, onClose, isLoadi
                     {[...Array(8)].map((_, i) => (
                       <div
                         key={i}
-                        className="aspect-square rounded-xl bg-surface/10 animate-pulse"
+                        className="aspect-square rounded-xl bg-surface/10 animate-shimmer bg-[length:400%_100%] bg-gradient-to-r from-surface/5 via-surface/20 to-surface/5"
                       />
                     ))}
                   </div>
@@ -76,16 +78,15 @@ const AlbumModal: React.FC<AlbumModalProps> = ({ album, isOpen, onClose, isLoadi
                         key={photo.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="break-inside-avoid group cursor-pointer"
+                        transition={{ delay: Math.min(index * 0.05, 0.5) }}
+                        className="break-inside-avoid group cursor-pointer mb-4"
                         onClick={() => handlePhotoClick(index)}
                       >
                         <div className="relative rounded-xl overflow-hidden">
-                          <img
+                          <LazyImage
                             src={photo.image_url}
                             alt={photo.caption || 'Photo'}
                             className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            loading="lazy"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                           {photo.caption && (
@@ -111,7 +112,7 @@ const AlbumModal: React.FC<AlbumModalProps> = ({ album, isOpen, onClose, isLoadi
         )}
       </AnimatePresence>
 
-      {/* Lightbox for full-screen view */}
+      {/* Lightbox for full-screen view — also inside the portal */}
       {album?.photos && (
         <GalleryLightbox
           images={album.photos.map((p) => ({
@@ -124,7 +125,7 @@ const AlbumModal: React.FC<AlbumModalProps> = ({ album, isOpen, onClose, isLoadi
           onClose={() => setLightboxOpen(false)}
         />
       )}
-    </>
+    </ModalPortal>
   );
 };
 
